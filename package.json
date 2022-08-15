@@ -1,0 +1,15 @@
+{
+  "name": "three-x-file-loader",
+  "version": "1.0.0",
+  "description": "DirectX 3D file (X file) loader for three.js.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "akosgarai",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^28.1.3"
+  }
+}
