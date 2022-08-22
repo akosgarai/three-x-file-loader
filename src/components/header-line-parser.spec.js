@@ -2,6 +2,14 @@ const HeaderLineParser = require('./header-line-parser');
 
 describe('Header Parser', () => {
 	describe('Validation', () => {
+		test('Throws exception for not strings', () => {
+			const lines = [
+				1, [], {}, 1.33, NaN
+			];
+			lines.forEach((line, index) => {
+				expect(() => { new HeaderLineParser(line); }).toThrow('Line is not string.');
+			});
+		});
 		test('Throws exception for invalid magic word', () => {
 			const lines = [
 				'xoff 0303txt 0032', 'fox 0303txt 0032', 'xoff0303txt 0032', 'xof0303txt 0032',
