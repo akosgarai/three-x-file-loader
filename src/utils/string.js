@@ -215,4 +215,13 @@ module.exports = {
 		}
 		return result;
 	},
+	// tests and possibly consumes a separator char, but does nothing if there was no separator
+	testForSeparator: function(fullText) {
+		// ignore the whitespaces
+		let skipped = this.readUntilNextNonWhitespace(fullText);
+		if (fullText[skipped.value] == ',' || fullText[skipped.value] == ';') {
+			skipped.value++;
+		}
+		return skipped;
+	}
 };
