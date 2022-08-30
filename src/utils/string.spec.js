@@ -243,4 +243,39 @@ describe('String Utils', () => {
 			} );
 		});
 	});
+	// Testcase for the readUntilEndOfLine function.
+	describe('readUntilEndOfLine', () => {
+		// Test data array for the testcases. Each testcase is an object with the following properties:
+		// text: the text to read. Example: 'whatever;goes;here;;\n';
+		// expectedLen: the length until the end of the line.
+		const testDataUntilEndOfLine = [
+			{
+				text: '\n',
+				expectedLen: 1,
+			},
+			{
+				text: '1\n',
+				expectedLen: 2,
+			},
+			{
+				text: 'whatever;goes;here;;\n',
+				expectedLen: 21,
+			},
+			{
+				text: 'goes;here;;\n',
+				expectedLen: 12,
+			},
+		];
+		// Testcases for not terminated line values.
+		const testDataNotTerminatedLine = ['whatever;goes;here;;', 'whatever;goes;here', '1.0;1.1;1.2;'];
+		test('General Tests', () => {
+			testDataUntilEndOfLine.forEach(item => {
+				const result = StringUtils.readUntilEndOfLine(item.text);
+				expect(result).toBe(item.expectedLen);
+			} );
+			testDataNotTerminatedLine.forEach(item => {
+				expect(() => { StringUtils.readUntilEndOfLine(item); }).toThrow('Unterminated line.');
+			} );
+		});
+	});
 });

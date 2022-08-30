@@ -146,4 +146,17 @@ module.exports = {
 		result.value.z = zComponentData.value;
 		return result;
 	},
+	// readUntilEndOfLine function reads the input until the end of the line.
+	// The output is the number of characters until the end of the line.
+	readUntilEndOfLine: function(fullText) {
+		let result = 0;
+		while (result < fullText.length) {
+			let currentChar = fullText[result];
+			if (currentChar == '\n' || currentChar == '\r') {
+				return ++result;
+			}
+			++result;
+		}
+		throw 'Unterminated line.';
+	}
 };
