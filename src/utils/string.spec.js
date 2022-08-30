@@ -278,4 +278,65 @@ describe('String Utils', () => {
 			} );
 		});
 	});
+	// Testcase for the StringUtils.readUntilNextNonWhitespace function.
+	describe('readUntilNextNonWhitespace', () => {
+		// Test data array for the testcases. Each testcase is an object with the following properties:
+		// text: the text to read. Example: 'whatever;goes;here;;\n';
+		// expectedLen: the length until the next not whitespace or comment block character.
+		// expectedLines: the expected number of lines read.
+		const testDataUntilNextNonWhitespace = [
+			{
+				text: '\n',
+				expectedLen: 1,
+				expectedLines: 1,
+			},
+			{
+				text: '1\n',
+				expectedLen: 0,
+				expectedLines: 0,
+			},
+			{
+				text: '\n1',
+				expectedLen: 1,
+				expectedLines: 1,
+			},
+			{
+				text: ' \n1',
+				expectedLen: 2,
+				expectedLines: 1,
+			},
+			{
+				text: '\n 1',
+				expectedLen: 2,
+				expectedLines: 1,
+			},
+			{
+				text: 'whatever;goes;here;;\n',
+				expectedLen: 0,
+				expectedLines: 0,
+			},
+			{
+				text: '\n \n a',
+				expectedLen: 4,
+				expectedLines: 2,
+			},
+			{
+				text: '\n#whatever;goes;here;;\nnot a comment\n',
+				expectedLen: 23,
+				expectedLines: 2,
+			},
+			{
+				text: '\n#whatever;goes;here;;\n // comment\nnot a comment\n',
+				expectedLen: 35,
+				expectedLines: 3,
+			},
+		];
+		test('General Tests', () => {
+			testDataUntilNextNonWhitespace.forEach(item => {
+				const result = StringUtils.readUntilNextNonWhitespace(item.text);
+				expect(result.value).toBe(item.expectedLen);
+				expect(result.lines).toBe(item.expectedLines);
+			} );
+		} );
+	});
 });

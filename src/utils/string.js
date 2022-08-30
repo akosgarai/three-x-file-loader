@@ -158,5 +158,32 @@ module.exports = {
 			++result;
 		}
 		throw 'Unterminated line.';
-	}
+	},
+	// readUntilNextNonWhitespace function reads the input until the next non-whitespace character.
+	// The output is an object with the number of skipped characters and the number of skipped lines.
+	readUntilNextNonWhitespace: function(fullText) {
+		let result = {
+			value: 0,
+			lines: 0,
+		};
+		while (true) {
+			while (result.value < fullText.length && this.isSpace(fullText[result.value])) {
+				if (fullText[result.value] == '\n') {
+					result.lines++;
+				}
+				result.value++;
+			}
+			if (result.value >= fullText.length) {
+				return result;
+			}
+			// ignore the comments
+			if ((fullText[result.value] == '/' && fullText[result.value + 1] == '/') || fullText[result.value] == '#') {
+				result.value += this.readUntilEndOfLine(fullText.substring(result.value));
+				result.lines++;
+			} else {
+				break;
+			}
+		}
+		return result;
+	},
 };
