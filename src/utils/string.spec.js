@@ -1,4 +1,5 @@
 const StringUtils = require('./string');
+const THREE = require('three');
 
 describe('String Utils', () => {
 	describe('isSpace', () => {
@@ -109,6 +110,137 @@ describe('String Utils', () => {
 			testDataNotFloat.forEach(item => {
 				expect(() => { StringUtils.readFloat(item); }).toThrow('Number expected.');
 			});
+		});
+	});
+	// Testcase for the readRGBA function.
+	describe('readRGBA', () => {
+		// Test data array for the testcases. Each testcase is an object with the following properties:
+		// text: the text to read. Example: '1.000000;1.000000;1.000000;1.000000;;'
+		// expectedValue: the expected value of the read RGBA. A THREE.Color object with the x, y, z values of the read RGBA.
+		// expectedLen: the expected length of the read RGBA.
+		const testDataRGBA = [
+			{
+				text: '1.000000;1.000000;1.000000;1.000000;;',
+				expectedValue: new THREE.Color(1.0, 1.0, 1.0),
+				expectedLen: 35,
+			},
+			{
+				text: '0.000000;0.000000;0.000000;0.000000;;',
+				expectedValue: new THREE.Color(0.0, 0.0, 0.0),
+				expectedLen: 35,
+			},
+			{
+				text: '1.000000;0.000000;0.000000;0.000000;;',
+				expectedValue: new THREE.Color(1.0, 0.0, 0.0),
+				expectedLen: 35,
+			},
+			{
+				text: '0.000000;1.000000;0.000000;0.000000;;',
+				expectedValue: new THREE.Color(0.0, 1.0, 0.0),
+				expectedLen: 35,
+			},
+		];
+		// Testcases for not RGBA values.
+		const testDataNotRGBA = ['1.000;wrong;1.0;1.0;;', '-wrong;1.00;1.00;1.00;;', '.'];
+		test('General Tests', () => {
+			testDataRGBA.forEach(item => {
+				const result = StringUtils.readRGBA(item.text);
+				expect(result.value.r).toBe(item.expectedValue.r);
+				expect(result.value.g).toBe(item.expectedValue.g);
+				expect(result.value.b).toBe(item.expectedValue.b);
+				expect(result.valueLength).toBe(item.expectedLen);
+			} );
+			testDataNotRGBA.forEach(item => {
+				expect(() => { StringUtils.readRGBA(item); }).toThrow('Number expected.');
+			} );
+		});
+	});
+	// Testcase for the readString function.
+	describe('readString', () => {
+		// Test data array for the testcases. Each testcase is an object with the following properties:
+		// text: the text to read. Example: '"it counts as a string"'
+		// expectedValue: the expected value of the read string.
+		// expectedLen: the expected length of the read string (included the " suffix and prefix).
+		const testDataString = [
+			{
+				text: '"it counts as a string"',
+				expectedValue: 'it counts as a string',
+				expectedLen: 23,
+			},
+			{
+				text: '"1234567890"',
+				expectedValue: '1234567890',
+				expectedLen: 12,
+			},
+			{
+				text: '"12345 67890 is a string"',
+				expectedValue: '12345 67890 is a string',
+				expectedLen: 25,
+			},
+			{
+				text: '""',
+				expectedValue: '',
+				expectedLen: 2,
+			},
+		];
+		// Testcases for not string values.
+		const testDataNotStringPrefixMissing = ['wrong"', '-wrong"', ' "'];
+		const testDataNotStringSuffixMissing = ['"wrong', '"-wrong', '" '];
+		test('General Tests', () => {
+			testDataString.forEach(item => {
+				const result = StringUtils.readString(item.text);
+				expect(result.value).toBe(item.expectedValue);
+				expect(result.valueLength).toBe(item.expectedLen);
+			} );
+			testDataNotStringPrefixMissing.forEach(item => {
+				expect(() => { StringUtils.readString(item); }).toThrow('String expected.');
+			} );
+			testDataNotStringSuffixMissing.forEach(item => {
+				expect(() => { StringUtils.readString(item); }).toThrow('Unterminated string.');
+			} );
+		});
+	});
+	// Testcase for the readVector3 function.
+	describe('readVector3', () => {
+		// Test data array for the testcases. Each testcase is an object with the following properties:
+		// text: the text to read. Example: '1.000000;1.000000;1.000000;,'
+		// expectedValue: the expected value of the read vector. A THREE.Vector3 object with the x, y, z values of the read vector.
+		// expectedLen: the expected length of the read vector.
+		const testDataVector3 = [
+			{
+				text: '1.000000;1.000000;1.000000;,',
+				expectedValue: new THREE.Vector3(1.0, 1.0, 1.0),
+				expectedLen: 27,
+			},
+			{
+				text: '0.577350;-0.578350;-0.579350;,',
+				expectedValue: new THREE.Vector3(0.577350, -0.578350, -0.579350),
+				expectedLen: 29,
+			},
+			{
+				text: '-0.576350;-0.575350;0.574350;,',
+				expectedValue: new THREE.Vector3(-0.576350, -0.575350, 0.574350),
+				expectedLen: 29,
+			},
+			{
+				text: '-0.577350;-0.577350;-0.577350;,',
+				expectedValue: new THREE.Vector3(-0.577350, -0.577350, -0.577350),
+				expectedLen: 30,
+			},
+		];
+		// Testcases for not vector values.
+		const testDataNotVector = ['1.0;wr1.0;1.0;', 'wrong1.0;1.0;1.0;,', '1.0;-wrong1.0;1.0;,', '1.0;1.0;'];
+		test('General Tests', () => {
+			testDataVector3.forEach(item => {
+				const result = StringUtils.readVector3(item.text);
+				expect(result.value.x).toBe(item.expectedValue.x);
+				expect(result.value.y).toBe(item.expectedValue.y);
+				expect(result.value.z).toBe(item.expectedValue.z);
+				expect(result.valueLength).toBe(item.expectedLen);
+			} );
+			testDataNotVector.forEach(item => {
+				expect(() => { StringUtils.readVector3(item); }).toThrow('Number expected.');
+			} );
 		});
 	});
 });
