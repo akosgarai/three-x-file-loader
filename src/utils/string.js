@@ -186,4 +186,33 @@ module.exports = {
 		}
 		return result;
 	},
+	// getNextToken function reads the input until the end of the next token.
+	// The output is an object with the following properties:
+	// - token: the trimmed value of the token
+	// - valueLength: the length of the text until the end of the token
+	// - lines: the number of lines until the end of the token
+	getNextToken: function(fullText) {
+		let result = {
+			token: '',
+			valueLength: 0,
+			lines: 0,
+		};
+		let skippedData = this.readUntilNextNonWhitespace(fullText);
+		result.valueLength = skippedData.value;
+		result.lines = skippedData.lines;
+		while (result.valueLength < fullText.length && !this.isSpace(fullText[result.valueLength])) {
+			// either keep token delimiters when already holding a token, or return if first valid char
+			const delimiters = [';', '}', '{', ','];
+			if (delimiters.indexOf(fullText[result.valueLength]) > -1) {
+				if (!result.token.length) {
+					result.token = result.token + fullText[result.valueLength];
+					++result.valueLength;
+				}
+				break; // stop for delimiter
+			}
+			result.token = result.token + fullText[result.valueLength];
+			++result.valueLength;
+		}
+		return result;
+	},
 };

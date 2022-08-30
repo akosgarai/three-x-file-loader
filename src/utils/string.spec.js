@@ -339,4 +339,52 @@ describe('String Utils', () => {
 			} );
 		} );
 	});
+	// Testcases for the StringUtils.getNextToken function.
+	describe('getNextToken', () => {
+		// Test data array for the testcases. Each testcase is an object with the following properties:
+		// text: the text to read. Example: 'whatever;goes;here;;\n';
+		// token: the expected token.
+		// expectedLen: the length until the end of the token read.
+		// expectedLines: the expected number of lines read.
+		const testDataGetNextToken = [
+			{
+				text: 'nextToken',
+				token: 'nextToken',
+				expectedLen: 9,
+				expectedLines: 0,
+			},
+			{
+				text: '  nextToken',
+				token: 'nextToken',
+				expectedLen: 11,
+				expectedLines: 0,
+			},
+			{
+				text: ' \n nextToken ',
+				token: 'nextToken',
+				expectedLen: 12,
+				expectedLines: 1,
+			},
+			{
+				text: ' \n nextToken}  ',
+				token: 'nextToken',
+				expectedLen: 12,
+				expectedLines: 1,
+			},
+			{
+				text: ' }otherToken',
+				token: '}',
+				expectedLen: 2,
+				expectedLines: 0,
+			},
+		];
+		test('General Tests', () => {
+			testDataGetNextToken.forEach(item => {
+				const result = StringUtils.getNextToken(item.text);
+				expect(result.token).toBe(item.token);
+				expect(result.valueLength).toBe(item.expectedLen);
+				expect(result.lines).toBe(item.expectedLines);
+			} );
+		} );
+	} );
 });
