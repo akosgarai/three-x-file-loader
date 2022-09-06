@@ -1,4 +1,4 @@
-const THREE = require('three');
+const Types = require('./types');
 
 module.exports = {
 	// https://en.cppreference.com/w/cpp/string/byte/isspace
@@ -79,10 +79,10 @@ module.exports = {
 	},
 	// readRGBA function reads 4 floating point numbers from the input.
 	// As the THREE.Color only has a constructor that takes 3 floats, the fourth is ignored.
-	// The output is an object with the THREE.Color and the length of the text read.
+	// The output is an object with the Types.Color and the length of the text read.
 	readRGBA: function(fullText) {
 		let result = {
-			value: new THREE.Color(),
+			value: new Types.Color(),
 			valueLength: 0,
 		};
 		let rColorComponentData = this.readFloat(fullText);
@@ -101,7 +101,7 @@ module.exports = {
 		// increase the result.valueLength by the length of the read data.
 		result.valueLength += aColorComponentData.valueLength;
 		// set the color.
-		result.value.setRGB(rColorComponentData.value, gColorComponentData.value, bColorComponentData.value);
+		result.value = new Types.Color(rColorComponentData.value, gColorComponentData.value, bColorComponentData.value);
 		return result;
 	},
 	// readString function reads a string from the input. The input has to be prefixed and suffixed with the '"' character.
@@ -127,10 +127,10 @@ module.exports = {
 		throw 'Unterminated string.';
 	},
 	// readVector3 function reads 3 floating point numbers from the input.
-	// The output is an object with the THREE.Vector3 and the length of the text read.
+	// The output is an object with the Types.Vector3 and the length of the text read.
 	readVector3: function(fullText) {
 		let result = {
-			value: new THREE.Vector3(),
+			value: new Types.Vector3(),
 			valueLength: 0,
 		};
 		let xComponentData = this.readFloat(fullText);

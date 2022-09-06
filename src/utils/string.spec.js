@@ -1,5 +1,5 @@
 const StringUtils = require('./string');
-const THREE = require('three');
+const Types = require('./types');
 
 describe('String Utils', () => {
 	describe('isSpace', () => {
@@ -116,27 +116,27 @@ describe('String Utils', () => {
 	describe('readRGBA', () => {
 		// Test data array for the testcases. Each testcase is an object with the following properties:
 		// text: the text to read. Example: '1.000000;1.000000;1.000000;1.000000;;'
-		// expectedValue: the expected value of the read RGBA. A THREE.Color object with the x, y, z values of the read RGBA.
+		// expectedValue: the expected value of the read RGBA. A Types.Color object with the r, g, b values of the read RGBA.
 		// expectedLen: the expected length of the read RGBA.
 		const testDataRGBA = [
 			{
 				text: '1.000000;1.000000;1.000000;1.000000;;',
-				expectedValue: new THREE.Color(1.0, 1.0, 1.0),
+				expectedValue: new Types.Color(1.0, 1.0, 1.0),
 				expectedLen: 35,
 			},
 			{
 				text: '0.000000;0.000000;0.000000;0.000000;;',
-				expectedValue: new THREE.Color(0.0, 0.0, 0.0),
+				expectedValue: new Types.Color(0.0, 0.0, 0.0),
 				expectedLen: 35,
 			},
 			{
 				text: '1.000000;0.000000;0.000000;0.000000;;',
-				expectedValue: new THREE.Color(1.0, 0.0, 0.0),
+				expectedValue: new Types.Color(1.0, 0.0, 0.0),
 				expectedLen: 35,
 			},
 			{
 				text: '0.000000;1.000000;0.000000;0.000000;;',
-				expectedValue: new THREE.Color(0.0, 1.0, 0.0),
+				expectedValue: new Types.Color(0.0, 1.0, 0.0),
 				expectedLen: 35,
 			},
 		];
@@ -204,27 +204,27 @@ describe('String Utils', () => {
 	describe('readVector3', () => {
 		// Test data array for the testcases. Each testcase is an object with the following properties:
 		// text: the text to read. Example: '1.000000;1.000000;1.000000;,'
-		// expectedValue: the expected value of the read vector. A THREE.Vector3 object with the x, y, z values of the read vector.
+		// expectedValue: the expected value of the read vector. A Types.Vector3 object with the x, y, z values of the read vector.
 		// expectedLen: the expected length of the read vector.
 		const testDataVector3 = [
 			{
 				text: '1.000000;1.000000;1.000000;,',
-				expectedValue: new THREE.Vector3(1.0, 1.0, 1.0),
+				expectedValue: new Types.Vector3(1.0, 1.0, 1.0),
 				expectedLen: 27,
 			},
 			{
 				text: '0.577350;-0.578350;-0.579350;,',
-				expectedValue: new THREE.Vector3(0.577350, -0.578350, -0.579350),
+				expectedValue: new Types.Vector3(0.577350, -0.578350, -0.579350),
 				expectedLen: 29,
 			},
 			{
 				text: '-0.576350;-0.575350;0.574350;,',
-				expectedValue: new THREE.Vector3(-0.576350, -0.575350, 0.574350),
+				expectedValue: new Types.Vector3(-0.576350, -0.575350, 0.574350),
 				expectedLen: 29,
 			},
 			{
 				text: '-0.577350;-0.577350;-0.577350;,',
-				expectedValue: new THREE.Vector3(-0.577350, -0.577350, -0.577350),
+				expectedValue: new Types.Vector3(-0.577350, -0.577350, -0.577350),
 				expectedLen: 30,
 			},
 		];
