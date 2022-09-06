@@ -122,22 +122,22 @@ describe('String Utils', () => {
 			{
 				text: '1.000000;1.000000;1.000000;1.000000;;',
 				expectedValue: new Types.Color(1.0, 1.0, 1.0),
-				expectedLen: 35,
+				expectedLen: 36,
 			},
 			{
 				text: '0.000000;0.000000;0.000000;0.000000;;',
 				expectedValue: new Types.Color(0.0, 0.0, 0.0),
-				expectedLen: 35,
+				expectedLen: 36,
 			},
 			{
 				text: '1.000000;0.000000;0.000000;0.000000;;',
 				expectedValue: new Types.Color(1.0, 0.0, 0.0),
-				expectedLen: 35,
+				expectedLen: 36,
 			},
 			{
 				text: '0.000000;1.000000;0.000000;0.000000;;',
 				expectedValue: new Types.Color(0.0, 1.0, 0.0),
-				expectedLen: 35,
+				expectedLen: 36,
 			},
 		];
 		// Testcases for not RGBA values.
@@ -152,6 +152,49 @@ describe('String Utils', () => {
 			} );
 			testDataNotRGBA.forEach(item => {
 				expect(() => { StringUtils.readRGBA(item); }).toThrow('Number expected.');
+			} );
+		});
+	});
+	// Testcase for the readRGB function.
+	describe('readRGB', () => {
+		// Test data array for the testcases. Each testcase is an object with the following properties:
+		// text: the text to read. Example: '1.000000;1.000000;1.000000;;'
+		// expectedValue: the expected value of the read RGB. A Types.Color object with the r, g, b values of the read RGB.
+		// expectedLen: the expected length of the read RGB.
+		const testDataRGB = [
+			{
+				text: '1.000000;1.000000;1.000000;;',
+				expectedValue: new Types.Color(1.0, 1.0, 1.0),
+				expectedLen: 28,
+			},
+			{
+				text: '0.000000;0.000000;0.000000;;',
+				expectedValue: new Types.Color(0.0, 0.0, 0.0),
+				expectedLen: 28,
+			},
+			{
+				text: '1.000000;0.000000;0.000000;;',
+				expectedValue: new Types.Color(1.0, 0.0, 0.0),
+				expectedLen: 28,
+			},
+			{
+				text: '0.000000;1.000000;0.000000;;',
+				expectedValue: new Types.Color(0.0, 1.0, 0.0),
+				expectedLen: 28,
+			},
+		];
+		// Testcases for not RGBA values.
+		const testDataNotRGB = ['1.000;wrong;1.0;;', '-wrong;1.00;1.00;;', '.'];
+		test('General Tests', () => {
+			testDataRGB.forEach(item => {
+				const result = StringUtils.readRGB(item.text);
+				expect(result.value.r).toBe(item.expectedValue.r);
+				expect(result.value.g).toBe(item.expectedValue.g);
+				expect(result.value.b).toBe(item.expectedValue.b);
+				expect(result.valueLength).toBe(item.expectedLen);
+			} );
+			testDataNotRGB.forEach(item => {
+				expect(() => { StringUtils.readRGB(item); }).toThrow('Number expected.');
 			} );
 		});
 	});
