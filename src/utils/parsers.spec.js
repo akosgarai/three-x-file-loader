@@ -70,4 +70,51 @@ describe('Parsers', () => {
 			} );
 		} );
 	});
+	describe('textureFilenameNode', () => {
+		// testData is an array of objects with the following properties:
+		// - fullText: the full text of the rest of the model file
+		// - expected: the expected result of the textureFilenameNode parser function
+		const testData = [
+			{
+				fullText: '{\n"filename.png";\n}\n',
+				expected: {
+					valueLength: '{\n"filename.png";\n}'.length,
+					lines: 2,
+					fileName: 'filename.png',
+				},
+			},
+			{
+				fullText: '{ \n  "filename.png";\n}\n',
+				expected: {
+					valueLength: '{ \n  "filename.png";\n}'.length,
+					lines: 2,
+					fileName: 'filename.png',
+				},
+			},
+			{
+				fullText: '\n{\n   "filename.png";\n}\n',
+				expected: {
+					valueLength: '\n{\n   "filename.png";\n}'.length,
+					lines: 3,
+					fileName: 'filename.png',
+				},
+			},
+		];
+		const wrongTestData = [
+			{fullText: '{"filename.png"', exeption: 'Unexpected token while parsing texture filename.'},
+			{fullText: '{ "filename.png"\n', exception: 'Unexpected token while parsing texture filename.'},
+			{fullText: '{"filename.png"\n}\n', exception: 'Unexpected token while parsing texture filename.'},
+			{fullText: '{filename.png"\n}\n', exception: 'String expected.'},
+			{fullText: '{"filename.png', exception: 'Unterminated string.'},
+			{fullText: '{"filename.png"', exception: 'Unexpected token while parsing texture filename.'},
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, expected}) => {
+				expect(Parsers.textureFilenameNode(fullText)).toEqual(expected);
+			} );
+			wrongTestData.forEach(({fullText, exception}) => {
+				expect(() => Parsers.textureFilenameNode(fullText)).toThrow(exception);
+			} );
+		} );
+	});
 });
