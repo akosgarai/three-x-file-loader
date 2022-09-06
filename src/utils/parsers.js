@@ -1,4 +1,5 @@
 const StringUtils = require('./string');
+const Types = require('./types');
 
 module.exports = {
 	// headOfDataObject parser function. Input is the full text of the rest of the model file.
@@ -93,8 +94,7 @@ module.exports = {
 	},
 	// Parse a material object definition based on the assimp xfile parser logic
 	// The assimp implementation is located in this link: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L655-L692
-	// The material has to be based on THREE.MeshPhongMaterial
-	materailNode: function(fullText) {
+	materialNode: function(fullText) {
 		let node = {
 			valueLength: 0,
 			lines: 0,
@@ -105,21 +105,31 @@ module.exports = {
 		if (materialName.token === '') {
 			materialName.token = 'material_' + fullText.substring(materialName.valueLength).length;
 		}
-		node.material = new THREE.MeshPhongMaterial();
+		node.material = new Types.Material();
 		node.material.name = materialName.token;
 		node.valueLength += materialName.valueLength;
 		node.lines += materialName.lines;
+
+		// ignore the whitespaces
+		let skipped = StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength));
+		node.valueLength += skipped.value;
+		node.lines += skipped.lines;
 
 		// Extract the diffuse color from the material definition with the readRGBA StringUtil function
 		const diffuseColor = StringUtils.readRGBA(fullText.substring(node.valueLength));
 		// increase the node.valueLength counter by the length of the read RGBA string
 		node.valueLength += diffuseColor.valueLength;
 		// Set the diffuse color of the material
-		node.material.color.setRGB(diffuseColor.value.r, diffuseColor.value.g, diffuseColor.value.b);
+		node.material.color = new Types.Color(diffuseColor.value.r, diffuseColor.value.g, diffuseColor.value.b);
 		// Remove the white spaces and the separator characters that might be present.
 		let skip = StringUtils.testForSeparator(fullText.substring(node.valueLength));
 		node.valueLength += skip.value;
 		node.lines += skip.lines;
+
+		// ignore the whitespaces
+		skipped = StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength));
+		node.valueLength += skipped.value;
+		node.lines += skipped.lines;
 
 		// Extract the shininess value from the material definition with the readFloat StringUtil function
 		const shininess = StringUtils.readFloat(fullText.substring(node.valueLength));
@@ -127,24 +137,38 @@ module.exports = {
 		node.valueLength += shininess.valueLength;
 		// Set the shininess value of the material
 		node.material.shininess = shininess.value;
-
-		// Extract the specular color from the material definition with the readRGBA StringUtil function
-		const specularColor = StringUtils.readRGBA(fullText.substring(node.valueLength));
-		// increase the node.valueLength counter by the length of the read RGBA string
-		node.valueLength += specularColor.valueLength;
-		// Set the specular color of the material
-		node.material.specular.setRGB(specularColor.value.r, specularColor.value.g, specularColor.value.b);
 		// Remove the white spaces and the separator characters that might be present.
 		skip = StringUtils.testForSeparator(fullText.substring(node.valueLength));
 		node.valueLength += skip.value;
 		node.lines += skip.lines;
 
-		// Extract the emissive color from the material definition with the readRGBA StringUtil function
-		const emissiveColor = StringUtils.readRGBA(fullText.substring(node.valueLength));
+		// ignore the whitespaces
+		skipped = StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength));
+		node.valueLength += skipped.value;
+		node.lines += skipped.lines;
+
+		// Extract the specular color from the material definition with the readRGB StringUtil function
+		const specularColor = StringUtils.readRGB(fullText.substring(node.valueLength));
+		// increase the node.valueLength counter by the length of the read RGBA string
+		node.valueLength += specularColor.valueLength;
+		// Set the specular color of the material
+		node.material.specular = new Types.Color(specularColor.value.r, specularColor.value.g, specularColor.value.b);
+		// Remove the white spaces and the separator characters that might be present.
+		skip = StringUtils.testForSeparator(fullText.substring(node.valueLength));
+		node.valueLength += skip.value;
+		node.lines += skip.lines;
+
+		// ignore the whitespaces
+		skipped = StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength));
+		node.valueLength += skipped.value;
+		node.lines += skipped.lines;
+
+		// Extract the emissive color from the material definition with the readRGB StringUtil function
+		const emissiveColor = StringUtils.readRGB(fullText.substring(node.valueLength));
 		// increase the node.valueLength counter by the length of the read RGBA string
 		node.valueLength += emissiveColor.valueLength;
 		// Set the emissive color of the material
-		node.material.emissive.setRGB(emissiveColor.value.r, emissiveColor.value.g, emissiveColor.value.b);
+		node.material.emissive = new Types.Color(emissiveColor.value.r, emissiveColor.value.g, emissiveColor.value.b);
 		// Remove the white spaces and the separator characters that might be present.
 		skip = StringUtils.testForSeparator(fullText.substring(node.valueLength));
 		node.valueLength += skip.value;
@@ -160,32 +184,42 @@ module.exports = {
 				break;
 			// handle the 'TextureFilename' token. Some exporters write "TextureFileName" instead.
 			} else if (nextToken.token == 'TextureFilename' || nextToken.token == 'TextureFileName') {
-				const textureName = this._parseTextureFilename();
-				material.map = this.texLoader.load(this.textureBaseDir + textureName);
+				const textureName = this.textureFilenameNode(fullText.substring(node.valueLength));
+				node.valueLength += textureName.valueLength;
+				node.lines += textureName.lines;
+				node.material.map = textureName.fileName;
 			// handle the 'NormalmapFilename' token. Some exporters write "NormalmapFileName" instead.
 			} else if (nextToken.token == 'NormalmapFilename' || nextToken.token == 'NormalmapFileName') {
-				const textureName = this._parseTextureFilename();
-				material.normalMap = this.texLoader.load(this.textureBaseDir + textureName);
-				// default to normalScale of THREE.Vector2(2,2)
-				material.normalScale = new THREE.Vector2(2, 2);
+				const textureName = this.textureFilenameNode(fullText.substring(node.valueLength));
+				node.valueLength += textureName.valueLength;
+				node.lines += textureName.lines;
+				node.material.normalMap = textureName.fileName;
+				// default to normalScale of Vector2(2,2)
+				node.material.normalScale = new Types.Vector2(2, 2);
 			// handle the 'BumpmapFilename' token. Some exporters write "BumpmapFileName" instead.
-			} else if (nextToken.token == 'BumpmapFilename' || nextToken.token == 'BumpmapFileName') {
-				const textureName = this._parseTextureFilename();
-				material.bumpMap = this.texLoader.load(this.textureBaseDir + textureName);
+			} else if (nextToken.token == 'BumpmapFilename' || nextToken.token == 'BumpmapFileName' || nextToken.token == 'BumpMapFilename') {
+				const textureName = this.textureFilenameNode(fullText.substring(node.valueLength));
+				node.valueLength += textureName.valueLength;
+				node.lines += textureName.lines;
+				node.material.bumpMap = textureName.fileName;
 				// default to bumpScale of 1
-				material.bumpScale = 1;
+				node.material.bumpScale = 1;
 			// handle the 'EmissiveMapFilename' token. Some exporters write "EmissiveMapFileName" instead.
 			} else if (nextToken.token == 'EmissiveMapFilename' || nextToken.token == 'EmissiveMapFileName') {
-				const textureName = this._parseTextureFilename();
-				material.emissiveMap = this.texLoader.load(this.textureBaseDir + textureName);
+				const textureName = this.textureFilenameNode(fullText.substring(node.valueLength));
+				node.valueLength += textureName.valueLength;
+				node.lines += textureName.lines;
+				node.material.emissiveMap = textureName.fileName;
 			// handle the 'LightMapFilename' token. Some exporters write "LightMapFileName" instead.
 			} else if (nextToken.token == 'LightMapFilename' || nextToken.token == 'LightMapFileName') {
-				const textureName = this._parseTextureFilename();
-				material.lightMap = this.texLoader.load(this.textureBaseDir + textureName);
+				const textureName = this.textureFilenameNode(fullText.substring(node.valueLength));
+				node.valueLength += textureName.valueLength;
+				node.lines += textureName.lines;
+				node.material.lightMap = textureName.fileName;
 			} else {
-				throw 'Unexpected token while parsing material: ' + nextToken;
+				throw 'Unexpected token while parsing material: ' + nextToken.token;
 			}
 		}
-		this.exportScene.materials.push(material);
+		return node;
 	}
 }

@@ -1,4 +1,5 @@
 const Parsers = require('./parsers');
+const Types = require('./types');
 
 describe('Parsers', () => {
 	describe('headOfDataObject', () => {
@@ -107,6 +108,7 @@ describe('Parsers', () => {
 			{fullText: '{filename.png"\n}\n', exception: 'String expected.'},
 			{fullText: '{"filename.png', exception: 'Unterminated string.'},
 			{fullText: '{"filename.png"', exception: 'Unexpected token while parsing texture filename.'},
+			{fullText: '{"filename.png";', exception: 'Unexpected token while parsing texture filename.'},
 		];
 		test('General test', () => {
 			testData.forEach(({fullText, expected}) => {
@@ -114,6 +116,130 @@ describe('Parsers', () => {
 			} );
 			wrongTestData.forEach(({fullText, exception}) => {
 				expect(() => Parsers.textureFilenameNode(fullText)).toThrow(exception);
+			} );
+		} );
+	});
+	describe('materialNode', () => {
+		const testData = [
+			{
+				fullText: ' {\n    1.000000;1.000000;1.000000;1.000000;;\n    9.999999;\n    0.000000;0.000000;0.000000;;\n    0.000000;0.000000;0.000000;;\n\n    TextureFilename {\n     "zippo.png";\n    }\n   }\n',
+				expected: {
+					valueLength: 176,
+					lines: 9,
+					material: (() => {
+						const material = new Types.Material();
+						material.name = 'material_175';
+						material.color = new Types.Color(1, 1, 1);
+						material.shininess = 9.999999;
+						material.specular = new Types.Color(0, 0, 0);
+						material.emissive = new Types.Color(0, 0, 0);
+						material.map = 'zippo.png';
+						return material;
+					})(),
+				},
+			},
+			{
+				fullText: 'MyMaterialName {\n    1.000000;1.000000;1.000000;1.000000;;\n    9.999999;\n    0.000000;0.000000;0.000000;;\n    0.000000;0.000000;0.000000;;\n\n    TextureFilename {\n     "zippo.png";\n    }\n   }\n',
+				expected: {
+					valueLength: 190,
+					lines: 9,
+					material: (() => {
+						const material = new Types.Material();
+						material.name = 'MyMaterialName';
+						material.color = new Types.Color(1, 1, 1);
+						material.shininess = 9.999999;
+						material.specular = new Types.Color(0, 0, 0);
+						material.emissive = new Types.Color(0, 0, 0);
+						material.map = 'zippo.png';
+						return material;
+					})(),
+				},
+			},
+			{
+				fullText: '{\n     1.000000;1.000000;1.000000;1.000000;;\n     34.560001;\n     0.577350;0.577350;0.577350;;\n     0.000000;0.000000;0.000000;;\n    TextureFilename {\n       "texture/SSR06_Born2_dif.png";\n     }\n	 BumpMapFilename {\n       "texture/SSR06_Born2_bp_base.png";\n     }\n    }\n',
+				expected: {
+					valueLength: 270,
+					lines: 11,
+					material: (() => {
+						const material = new Types.Material();
+						material.name = 'material_270';
+						material.color = new Types.Color(1, 1, 1);
+						material.shininess = 34.560001;
+						material.specular = new Types.Color(0.577350, 0.577350, 0.577350);
+						material.emissive = new Types.Color(0, 0, 0);
+						material.map = 'texture/SSR06_Born2_dif.png';
+						material.bumpMap = 'texture/SSR06_Born2_bp_base.png';
+						material.bumpScale = 1;
+						return material;
+					})(),
+				},
+			},
+			{
+				fullText: '{\n     1.000000;1.000000;1.000000;1.000000;;\n     34.560001;\n     0.577350;0.577350;0.577350;;\n     0.000000;0.000000;0.000000;;\n    TextureFilename {\n       "texture/SSR06_Born2_dif.png";\n     }\n NormalmapFileName {\n       "texture/SSR06_Born2_bp_base.png";\n     }\n    }\n',
+				expected: {
+					valueLength: 271,
+					lines: 11,
+					material: (() => {
+						const material = new Types.Material();
+						material.name = 'material_271';
+						material.color = new Types.Color(1, 1, 1);
+						material.shininess = 34.560001;
+						material.specular = new Types.Color(0.577350, 0.577350, 0.577350);
+						material.emissive = new Types.Color(0, 0, 0);
+						material.map = 'texture/SSR06_Born2_dif.png';
+						material.normalMap = 'texture/SSR06_Born2_bp_base.png';
+						material.normalScale = new Types.Vector2(2, 2);
+						return material;
+					})(),
+				},
+			},
+			{
+				fullText: '{\n     1.000000;1.000000;1.000000;1.000000;;\n     34.560001;\n     0.577350;0.577350;0.577350;;\n     0.000000;0.000000;0.000000;;\n    TextureFilename {\n       "texture/SSR06_Born2_dif.png";\n     }\n EmissiveMapFilename {\n       "texture/SSR06_Born2_bp_base.png";\n     }\n    }\n',
+				expected: {
+					valueLength: 273,
+					lines: 11,
+					material: (() => {
+						const material = new Types.Material();
+						material.name = 'material_273';
+						material.color = new Types.Color(1, 1, 1);
+						material.shininess = 34.560001;
+						material.specular = new Types.Color(0.577350, 0.577350, 0.577350);
+						material.emissive = new Types.Color(0, 0, 0);
+						material.map = 'texture/SSR06_Born2_dif.png';
+						material.emissiveMap = 'texture/SSR06_Born2_bp_base.png';
+						return material;
+					})(),
+				},
+			},
+			{
+				fullText: '{\n     1.000000;1.000000;1.000000;1.000000;;\n     34.560001;\n     0.577350;0.577350;0.577350;;\n     0.000000;0.000000;0.000000;;\n    TextureFilename {\n       "texture/SSR06_Born2_dif.png";\n     }\n LightMapFilename {\n       "texture/SSR06_Born2_bp_base.png";\n     }\n    }\n',
+				expected: {
+					valueLength: 270,
+					lines: 11,
+					material: (() => {
+						const material = new Types.Material();
+						material.name = 'material_270';
+						material.color = new Types.Color(1, 1, 1);
+						material.shininess = 34.560001;
+						material.specular = new Types.Color(0.577350, 0.577350, 0.577350);
+						material.emissive = new Types.Color(0, 0, 0);
+						material.map = 'texture/SSR06_Born2_dif.png';
+						material.lightMap = 'texture/SSR06_Born2_bp_base.png';
+						return material;
+					})(),
+				},
+			},
+		];
+		const wrongTestData = [
+			{fullText: '{\n    1.000000;1.000000;1.000000;1.000000;;\n    9.999999;\n    0.000000;0.000000;0.000000;;\n    0.000000;0.000000;0.000000;;\n\n', exception: 'Unexpected end of file reached while parsing material'},
+			{fullText: '{\n  1.000000;1.000000;1.000000;1.000000;;\n  9.999999;\n  0.000000;0.000000;0.000000;;\n  0.000000;0.000000;0.000000;;\n\n  WrongName {\n    "zippo.png";\n   }\n}', exception: 'Unexpected token while parsing material: WrongName'},
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, expected}) => {
+				expect(Parsers.materialNode(fullText)).toEqual(expected);
+			} );
+			wrongTestData.forEach(({fullText, exception}) => {
+				expect(() => Parsers.materialNode(fullText)).toThrow(exception);
 			} );
 		} );
 	});
