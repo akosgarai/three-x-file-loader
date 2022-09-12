@@ -43,7 +43,7 @@ describe('String Utils', () => {
 		test('General Tests', () => {
 			testDataInt.forEach(item => {
 				const result = StringUtils.readInteger(item.text);
-				expect(result.value).toBe(item.expectedInt);
+				expect(result.nodeData).toBe(item.expectedInt);
 				expect(result.valueLength).toBe(item.expectedLen);
 			});
 			testDataNotInt.forEach(item => {
@@ -104,7 +104,7 @@ describe('String Utils', () => {
 		test('General Tests', () => {
 			testDataFloat.forEach(item => {
 				const result = StringUtils.readFloat(item.text);
-				expect(result.value).toBe(item.expectedValue);
+				expect(result.nodeData).toBe(item.expectedValue);
 				expect(result.valueLength).toBe(item.expectedLen);
 			} );
 			testDataNotFloat.forEach(item => {
@@ -145,9 +145,9 @@ describe('String Utils', () => {
 		test('General Tests', () => {
 			testDataRGBA.forEach(item => {
 				const result = StringUtils.readRGBA(item.text);
-				expect(result.value.r).toBe(item.expectedValue.r);
-				expect(result.value.g).toBe(item.expectedValue.g);
-				expect(result.value.b).toBe(item.expectedValue.b);
+				expect(result.nodeData.r).toBe(item.expectedValue.r);
+				expect(result.nodeData.g).toBe(item.expectedValue.g);
+				expect(result.nodeData.b).toBe(item.expectedValue.b);
 				expect(result.valueLength).toBe(item.expectedLen);
 			} );
 			testDataNotRGBA.forEach(item => {
@@ -188,9 +188,9 @@ describe('String Utils', () => {
 		test('General Tests', () => {
 			testDataRGB.forEach(item => {
 				const result = StringUtils.readRGB(item.text);
-				expect(result.value.r).toBe(item.expectedValue.r);
-				expect(result.value.g).toBe(item.expectedValue.g);
-				expect(result.value.b).toBe(item.expectedValue.b);
+				expect(result.nodeData.r).toBe(item.expectedValue.r);
+				expect(result.nodeData.g).toBe(item.expectedValue.g);
+				expect(result.nodeData.b).toBe(item.expectedValue.b);
 				expect(result.valueLength).toBe(item.expectedLen);
 			} );
 			testDataNotRGB.forEach(item => {
@@ -232,7 +232,7 @@ describe('String Utils', () => {
 		test('General Tests', () => {
 			testDataString.forEach(item => {
 				const result = StringUtils.readString(item.text);
-				expect(result.value).toBe(item.expectedValue);
+				expect(result.nodeData).toBe(item.expectedValue);
 				expect(result.valueLength).toBe(item.expectedLen);
 			} );
 			testDataNotStringPrefixMissing.forEach(item => {
@@ -276,9 +276,9 @@ describe('String Utils', () => {
 		test('General Tests', () => {
 			testDataVector3.forEach(item => {
 				const result = StringUtils.readVector3(item.text);
-				expect(result.value.x).toBe(item.expectedValue.x);
-				expect(result.value.y).toBe(item.expectedValue.y);
-				expect(result.value.z).toBe(item.expectedValue.z);
+				expect(result.nodeData.x).toBe(item.expectedValue.x);
+				expect(result.nodeData.y).toBe(item.expectedValue.y);
+				expect(result.nodeData.z).toBe(item.expectedValue.z);
 				expect(result.valueLength).toBe(item.expectedLen);
 			} );
 			testDataNotVector.forEach(item => {
@@ -377,7 +377,7 @@ describe('String Utils', () => {
 		test('General Tests', () => {
 			testDataUntilNextNonWhitespace.forEach(item => {
 				const result = StringUtils.readUntilNextNonWhitespace(item.text);
-				expect(result.value).toBe(item.expectedLen);
+				expect(result.valueLength).toBe(item.expectedLen);
 				expect(result.lines).toBe(item.expectedLines);
 			} );
 		} );
@@ -424,7 +424,7 @@ describe('String Utils', () => {
 		test('General Tests', () => {
 			testDataGetNextToken.forEach(item => {
 				const result = StringUtils.getNextToken(item.text);
-				expect(result.token).toBe(item.token);
+				expect(result.nodeData).toBe(item.token);
 				expect(result.valueLength).toBe(item.expectedLen);
 				expect(result.lines).toBe(item.expectedLines);
 			} );
@@ -510,7 +510,7 @@ describe('String Utils', () => {
 		test('General Tests', () => {
 			testDataUntilNextNonWhitespace.forEach(item => {
 				const result = StringUtils.testForSeparator(item.text);
-				expect(result.value).toBe(item.expectedLen);
+				expect(result.valueLength).toBe(item.expectedLen);
 				expect(result.lines).toBe(item.expectedLines);
 			} );
 		} );

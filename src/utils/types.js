@@ -1,3 +1,15 @@
+class ExportedNode {
+	constructor(nodeDataDefault) {
+		this.valueLength = 0;
+		this.lines = 0;
+		this.nodeData = nodeDataDefault;
+	}
+
+	updateExport(subExport) {
+		this.valueLength += subExport.valueLength;
+		this.lines += subExport.lines;
+	}
+};
 class Vector3 {
 	constructor(x, y, z) {
 		this.x = x;
@@ -39,9 +51,37 @@ class Material {
 		this.lightMap = '';
 	}
 };
+class Scene {
+	constructor() {
+		this.materials = [];
+		this.meshes = [];
+	}
+};
+// https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileHelper.h#L59-L62
+class Face {
+	constructor() {
+		this.indices = [];
+	}
+}
+// https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileHelper.h#L112-L144
+class Mesh {
+	constructor() {
+		this.name = '';
+		// Normal vectors Vector3
+		this.normals = [];
+		// Normal face indices
+		this.normalFaces = [];
+		// Vertex positions Vector3
+		this.vertices = [];
+		// Vertex face indices
+		this.vertexFaces = [];
+
+	}
+};
 module.exports = {
-	Vector3,
-	Vector2,
 	Color,
+	ExportedNode,
 	Material,
+	Vector2,
+	Vector3,
 };

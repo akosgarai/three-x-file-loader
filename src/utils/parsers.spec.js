@@ -31,7 +31,10 @@ describe('Parsers', () => {
 		const wrongTestData = ['token ', 'token token', 'token token{', 'token token {'];
 		test('General test', () => {
 			testData.forEach(({fullText, expected}) => {
-				expect(Parsers.headOfDataObject(fullText)).toEqual(expected);
+				const result = Parsers.headOfDataObject(fullText);
+				expect(result.valueLength).toEqual(expected.valueLength);
+				expect(result.lines).toEqual(expected.lines);
+				expect(result.nodeData).toEqual(expected.token);
 			} );
 			wrongTestData.forEach(wrongTest => {
 				expect(() => Parsers.headOfDataObject(wrongTest)).toThrow('Opening brace expected.');
@@ -64,7 +67,10 @@ describe('Parsers', () => {
 		];
 		test('General test', () => {
 			testData.forEach(({fullText, expected}) => {
-				expect(Parsers.templateNode(fullText)).toEqual(expected);
+				const result = Parsers.templateNode(fullText);
+				expect(result.valueLength).toEqual(expected.valueLength);
+				expect(result.lines).toEqual(expected.lines);
+				expect(result.nodeData).toEqual(null);
 			} );
 			wrongTestData.forEach(wrongTest => {
 				expect(() => Parsers.templateNode(wrongTest)).toThrow('Unexpected end of file reached while parsing template definition.');
@@ -112,7 +118,10 @@ describe('Parsers', () => {
 		];
 		test('General test', () => {
 			testData.forEach(({fullText, expected}) => {
-				expect(Parsers.textureFilenameNode(fullText)).toEqual(expected);
+				const result = Parsers.textureFilenameNode(fullText);
+				expect(result.valueLength).toEqual(expected.valueLength);
+				expect(result.lines).toEqual(expected.lines);
+				expect(result.nodeData).toEqual(expected.fileName);
 			} );
 			wrongTestData.forEach(({fullText, exception}) => {
 				expect(() => Parsers.textureFilenameNode(fullText)).toThrow(exception);
@@ -126,7 +135,7 @@ describe('Parsers', () => {
 				expected: {
 					valueLength: 176,
 					lines: 9,
-					material: (() => {
+					nodeData: (() => {
 						const material = new Types.Material();
 						material.name = 'material_175';
 						material.color = new Types.Color(1, 1, 1);
@@ -143,7 +152,7 @@ describe('Parsers', () => {
 				expected: {
 					valueLength: 190,
 					lines: 9,
-					material: (() => {
+					nodeData: (() => {
 						const material = new Types.Material();
 						material.name = 'MyMaterialName';
 						material.color = new Types.Color(1, 1, 1);
@@ -160,7 +169,7 @@ describe('Parsers', () => {
 				expected: {
 					valueLength: 270,
 					lines: 11,
-					material: (() => {
+					nodeData: (() => {
 						const material = new Types.Material();
 						material.name = 'material_270';
 						material.color = new Types.Color(1, 1, 1);
@@ -179,7 +188,7 @@ describe('Parsers', () => {
 				expected: {
 					valueLength: 271,
 					lines: 11,
-					material: (() => {
+					nodeData: (() => {
 						const material = new Types.Material();
 						material.name = 'material_271';
 						material.color = new Types.Color(1, 1, 1);
@@ -198,7 +207,7 @@ describe('Parsers', () => {
 				expected: {
 					valueLength: 273,
 					lines: 11,
-					material: (() => {
+					nodeData: (() => {
 						const material = new Types.Material();
 						material.name = 'material_273';
 						material.color = new Types.Color(1, 1, 1);
@@ -216,7 +225,7 @@ describe('Parsers', () => {
 				expected: {
 					valueLength: 270,
 					lines: 11,
-					material: (() => {
+					nodeData: (() => {
 						const material = new Types.Material();
 						material.name = 'material_270';
 						material.color = new Types.Color(1, 1, 1);
@@ -236,7 +245,10 @@ describe('Parsers', () => {
 		];
 		test('General test', () => {
 			testData.forEach(({fullText, expected}) => {
-				expect(Parsers.materialNode(fullText)).toEqual(expected);
+				const material = Parsers.materialNode(fullText);
+				expect(material.valueLength).toEqual(expected.valueLength);
+				expect(material.lines).toEqual(expected.lines);
+				expect(material.nodeData).toEqual(expected.nodeData);
 			} );
 			wrongTestData.forEach(({fullText, exception}) => {
 				expect(() => Parsers.materialNode(fullText)).toThrow(exception);
