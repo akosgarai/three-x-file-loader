@@ -79,6 +79,10 @@ class Mesh {
 		this.numTexCoords = 0;	//mNumTextures
 		// Texture coordinates Vector2
 		this.texCoords = [];	//mTexCoords
+		// number of colors
+		this.numColors = 0;	//mNumColorSets
+		// vertex colors
+		this.colors = {};	//mColors
 
 	}
 };

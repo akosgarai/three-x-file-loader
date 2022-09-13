@@ -268,4 +268,43 @@ module.exports = {
 		}
 		return node;
 	},
+	// MeshVertexColors node parser based on the assimp implementation: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L566-L593
+	meshVertexColorsNode(fullText, mesh) {
+		let node = new Types.ExportedNode(mesh);
+		let head = this.headOfDataObject(fullText);
+		node.updateExport(head);
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		// read the number of colors
+		const count = StringUtils.readInteger(fullText.substring(node.valueLength));
+		node.updateExport(count);
+		if (count.nodeData != node.nodeData.vertices.length) {
+			throw 'Vertex color count does not match vertex count';
+		}
+		// Remove the white spaces and the separator characters that might be present.
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		for (let i = 0; i < count.nodeData; i++) {
+			const index = StringUtils.readInteger(fullText.substring(node.valueLength));
+			node.updateExport(index);
+			if (index.nodeData >= node.nodeData.vertices.length) {
+				throw 'Vertex color index out of bounds';
+			}
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+			node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+			const color = StringUtils.readRGBA(fullText.substring(node.valueLength));
+			node.updateExport(color);
+			node.nodeData.colors[index.nodeData] = color.nodeData;
+			// Remove the white spaces and the separator characters that might be present.
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+			node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		}
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		// The next token should be the closing brace
+		let nextToken = StringUtils.getNextToken(fullText.substring(node.valueLength));
+		node.updateExport(nextToken);
+		if (nextToken.nodeData != '}') {
+			throw 'Unexpected token while parsing mesh vertex colors: ' + nextToken.nodeData;
+		}
+		return node;
+	},
 }

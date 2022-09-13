@@ -466,4 +466,122 @@ describe('Parsers', () => {
 			} );
 		} );
 	});
+	describe('meshVertexColorsNode', () => {
+		const dummyVertex = new Types.Vector3(0,0,0);
+		const testData = [
+			{
+				fullText: '{1;\n0;0.0,0.0,0.0,0.0;,}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertices = [dummyVertex];
+					return mesh;
+				})(),
+				expected: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.colors = {
+						0: new Types.Color(0, 0, 0),
+					};
+					mesh.vertices = [dummyVertex];
+					const nodeData = new Types.ExportedNode(mesh);
+					nodeData.valueLength = 24;
+					nodeData.lines = 1;
+					return nodeData;
+				})(),
+			},
+			{
+				fullText: '{2;\n0;1.0,1.0,1.0,0.0;,\n1;0.0,0.0,0.0,0.0;,}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertices = [dummyVertex, dummyVertex];
+					return mesh;
+				})(),
+				expected: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.colors = {
+						0: new Types.Color(1, 1, 1),
+						1: new Types.Color(0, 0, 0),
+					};
+					mesh.vertices = [dummyVertex, dummyVertex];
+					const nodeData = new Types.ExportedNode(mesh);
+					nodeData.valueLength = 44;
+					nodeData.lines = 2;
+					return nodeData;
+				})(),
+			},
+			{
+				fullText: '{2;\n1;1.0,1.0,1.0,0.0;,\n0;0.0,0.0,0.0,0.0;,}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertices = [dummyVertex, dummyVertex];
+					return mesh;
+				})(),
+				expected: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.colors = {
+						0: new Types.Color(0, 0, 0),
+						1: new Types.Color(1, 1, 1),
+					};
+					mesh.vertices = [dummyVertex, dummyVertex];
+					const nodeData = new Types.ExportedNode(mesh);
+					nodeData.valueLength = 44;
+					nodeData.lines = 2;
+					return nodeData;
+				})(),
+			},
+		];
+		// missing vertexData
+		// missing closing bracket
+		const wrongTestData = [
+			{
+				fullText: '{1;\n0;0.0,0.0,0.0,0.0;,}',
+				mesh: new Types.Mesh(),
+				exception: 'Normal face count does not match vertex face count.',
+			},
+			{
+				fullText: '{1;\n1;0.0,0.0,0.0,0.0;,}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertices = [dummyVertex];
+					return mesh;
+				})(),
+				exception: 'Vertex color index out of bounds',
+			},
+			{
+				fullText: '{1;\n0;0.0,0.0,0.0,0.0;,',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertices = [dummyVertex];
+					return mesh;
+				})(),
+				exception: 'Unexpected token while parsing mesh vertex colors: ',
+			},
+			{
+				fullText: '{1;\n0;0.0,0.0,0.0,0.0;,wrongsymbol}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertices = [dummyVertex];
+					return mesh;
+				})(),
+				exception: 'Unexpected token while parsing mesh vertex colors: wrongsymbol',
+			},
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, mesh, expected}) => {
+				const nodeData = Parsers.meshVertexColorsNode(fullText, mesh);
+				expect(nodeData).toEqual(expected);
+			} );
+			wrongTestData.forEach(({fullText, mesh}) => {
+				expect(() => Parsers.meshVertexColorsNode(fullText, mesh)).toThrow();
+			} );
+		} );
+	});
 });

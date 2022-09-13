@@ -140,6 +140,9 @@ describe('Types', () => {
 			expect(mesh.numTexCoords).toBe(0);
 			expect(mesh.texCoords).toBeInstanceOf(Array);
 			expect(mesh.texCoords.length).toBe(0);
+			expect(mesh.numColors).toBe(0);
+			expect(mesh.colors).toBeInstanceOf(Object);
+			expect(Object.keys(mesh.colors).length).toBe(0);
 		});
 	});
 });
