@@ -162,6 +162,22 @@ module.exports = {
 		result.nodeData.z = zComponentData.nodeData;
 		return result;
 	},
+	// readVector2 function reads 2 floating point numbers from the input.
+	// The output is an object with the Types.Vector2 and the length of the text read.
+	readVector2: function(fullText) {
+		let result = new Types.ExportedNode(new Types.Vector2());
+		let xComponentData = this.readFloat(fullText);
+		// increase the result.valueLength by the length of the read data.
+		result.updateExport(xComponentData);
+		result.valueLength += 1;
+		result.nodeData.x = xComponentData.nodeData;
+		let yComponentData = this.readFloat(fullText.substring(result.valueLength));
+		// increase the result.valueLength by the length of the read data.
+		result.updateExport(yComponentData);
+		result.valueLength += 1;
+		result.nodeData.y = yComponentData.nodeData;
+		return result;
+	},
 	// readUntilEndOfLine function reads the input until the end of the line.
 	// The output is the number of characters until the end of the line.
 	readUntilEndOfLine: function(fullText) {

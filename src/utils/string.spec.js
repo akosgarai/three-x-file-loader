@@ -286,6 +286,48 @@ describe('String Utils', () => {
 			} );
 		});
 	});
+	// Testcase for the readVector3 function.
+	describe('readVector2', () => {
+		// Test data array for the testcases. Each testcase is an object with the following properties:
+		// text: the text to read. Example: '1.000000;1.000000;,'
+		// expectedValue: the expected value of the read vector. A Types.Vector2 object with the x, y values of the read vector.
+		// expectedLen: the expected length of the read vector.
+		const testDataVector2 = [
+			{
+				text: '1.000000;1.000000;,',
+				expectedValue: new Types.Vector3(1.0, 1.0),
+				expectedLen: 18,
+			},
+			{
+				text: '0.577350;-0.578350;,',
+				expectedValue: new Types.Vector3(0.577350, -0.578350),
+				expectedLen: 19,
+			},
+			{
+				text: '-0.576350;-0.575350;,',
+				expectedValue: new Types.Vector3(-0.576350, -0.575350),
+				expectedLen: 20,
+			},
+			{
+				text: '-0.577350;-0.577350;,',
+				expectedValue: new Types.Vector3(-0.577350, -0.577350),
+				expectedLen: 20,
+			},
+		];
+		// Testcases for not vector values.
+		const testDataNotVector = ['1.0;wr1.0;', 'wrong1.0;1.0;,', '1.0;-wrong1.0;,', '1.0;'];
+		test('General Tests', () => {
+			testDataVector2.forEach(item => {
+				const result = StringUtils.readVector2(item.text);
+				expect(result.nodeData.x).toBe(item.expectedValue.x);
+				expect(result.nodeData.y).toBe(item.expectedValue.y);
+				expect(result.valueLength).toBe(item.expectedLen);
+			} );
+			testDataNotVector.forEach(item => {
+				expect(() => { StringUtils.readVector2(item); }).toThrow('Number expected.');
+			} );
+		});
+	});
 	// Testcase for the readUntilEndOfLine function.
 	describe('readUntilEndOfLine', () => {
 		// Test data array for the testcases. Each testcase is an object with the following properties:
