@@ -382,4 +382,88 @@ describe('Parsers', () => {
 			} );
 		} );
 	});
+	describe('meshTextureCoordsNode', () => {
+		const dummyVertex = new Types.Vector3(0,0,0);
+		const testData = [
+			{
+				fullText: '{1;\n 1.000000;0.000000;;}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertices = [dummyVertex];
+					return mesh;
+				})(),
+				expected: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertices = [dummyVertex];
+					mesh.texCoords = [new Types.Vector2(1,0)];
+					const nodeData = new Types.ExportedNode(mesh);
+					nodeData.valueLength = 25;
+					nodeData.lines = 1;
+					return nodeData;
+				})(),
+			},
+			{
+				fullText: '{8;\n 0.000000;1.000000;\n0.000000;0.000000;\n1.000000;0.000000;\n 1.000000;1.000000;\n 0.000000;1.000000;\n 0.000000;0.000000;\n 1.000000;0.000000;\n 1.000000;1.000000;;}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertices = [dummyVertex, dummyVertex, dummyVertex, dummyVertex, dummyVertex, dummyVertex, dummyVertex, dummyVertex];
+					return mesh;
+				})(),
+				expected: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertices = [dummyVertex, dummyVertex, dummyVertex, dummyVertex, dummyVertex, dummyVertex, dummyVertex, dummyVertex];
+					mesh.texCoords = [new Types.Vector2(0,1),new Types.Vector2(0,0),new Types.Vector2(1,0),new Types.Vector2(1,1),new Types.Vector2(0,1),new Types.Vector2(0,0),new Types.Vector2(1,0),new Types.Vector2(1,1)];
+					const nodeData = new Types.ExportedNode(mesh);
+					nodeData.valueLength = 163;
+					nodeData.lines = 8;
+					return nodeData;
+				})(),
+			},
+		];
+		const wrongTestData = [
+			{
+				fullText: '{1;\n 1.000000;0.000000;;}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertices = [dummyVertex, dummyVertex];
+					return mesh;
+				})(),
+				exception: 'Texture coordinate count does not match vertex face count.',
+			},
+			{
+				fullText: '{1;\n 1.000000;0.000000;;',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertices = [dummyVertex];
+					return mesh;
+				})(),
+				exception: 'Unexpected token while parsing mesh texture coords: ',
+			},
+			{
+				fullText: '{1;\n 1.000000;0.000000;;wrongsymbol}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertices = [dummyVertex];
+					return mesh;
+				})(),
+				exception: 'Unexpected token while parsing mesh texture coords: wrongsymbol',
+			},
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, mesh, expected}) => {
+				const nodeData = Parsers.meshTextureCoordsNode(fullText, mesh);
+				expect(nodeData).toEqual(expected);
+			} );
+			wrongTestData.forEach(({fullText, mesh}) => {
+				expect(() => Parsers.meshTextureCoordsNode(fullText, mesh)).toThrow();
+			} );
+		} );
+	});
 });

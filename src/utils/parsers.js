@@ -236,4 +236,36 @@ module.exports = {
 		}
 		return node;
 	},
+	// MeshTextureCoords node parser based on the assimp implementation: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L547-L563
+	meshTextureCoordsNode(fullText, mesh) {
+		let node = new Types.ExportedNode(mesh);
+		let head = this.headOfDataObject(fullText);
+		node.updateExport(head);
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		// read the number of texture coordinates
+		const count = StringUtils.readInteger(fullText.substring(node.valueLength));
+		node.updateExport(count);
+		if (count.nodeData != node.nodeData.vertices.length) {
+			throw 'Texture coordinate count does not match vertex face count.';
+		}
+		// Remove the white spaces and the separator characters that might be present.
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		for (let i = 0; i < count.nodeData; i++) {
+			let uv = StringUtils.readVector2(fullText.substring(node.valueLength));
+			node.updateExport(uv);
+			node.nodeData.texCoords.push(uv.nodeData);
+			// Remove the white spaces and the separator characters that might be present.
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+			node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		}
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		// The next token should be the closing brace
+		let nextToken = StringUtils.getNextToken(fullText.substring(node.valueLength));
+		node.updateExport(nextToken);
+		if (nextToken.nodeData != '}') {
+			throw 'Unexpected token while parsing mesh texture coords: ' + nextToken.nodeData;
+		}
+		return node;
+	},
 }
