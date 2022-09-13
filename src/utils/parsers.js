@@ -178,19 +178,62 @@ module.exports = {
 		}
 		return node;
 	},
-	// MeshNormal node parser based on the assim implementation: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L509-L544
+	// MeshNormal node parser based on the assimp implementation: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L509-L544
 	meshNormalNode(fullText, mesh) {
-		let result = {
-			valueLength: 0,
-			lines: 0,
-			mesh: mesh,
-		};
+		let node = new Types.ExportedNode(mesh);
 		let head = this.headOfDataObject(fullText);
-		result.valueLength += head.valueLength;
-		result.lines += head.lines;
+		node.updateExport(head);
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
 		// read the number of normals
-		let count = StringUtils.readInteger(fullText.substring(result.valueLength));
-		result.valueLength += count.valueLength;
-		result.lines += count.lines;
+		let count = StringUtils.readInteger(fullText.substring(node.valueLength));
+		node.updateExport(count);
+		// Remove the white spaces and the separator characters that might be present.
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		// read the normals
+		for (let i = 0; i < count.nodeData; i++) {
+			let normal = StringUtils.readVector3(fullText.substring(node.valueLength));
+			node.updateExport(normal);
+			node.nodeData.normals.push(normal.nodeData);
+			// Remove the white spaces and the separator characters that might be present.
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+			node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		}
+		// read the number of faces.
+		let numFaces = StringUtils.readInteger(fullText.substring(node.valueLength));
+		node.updateExport(numFaces);
+		if (numFaces.nodeData != node.nodeData.vertexFaces.length) {
+			throw 'Normal face count does not match vertex face count.';
+		}
+		// Remove the white spaces and the separator characters that might be present.
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		if (numFaces.nodeData > 0) {
+			// read the face indices
+			for (let i = 0; i < numFaces.nodeData; i++) {
+				const numIndices = StringUtils.readInteger(fullText.substring(node.valueLength));
+				node.updateExport(numIndices);
+				node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+				node.nodeData.normalFaces.push(new Types.Face());
+				for (let j = 0; j < numIndices.nodeData; j++) {
+					let index = StringUtils.readInteger(fullText.substring(node.valueLength));
+					node.updateExport(index);
+					node.nodeData.normalFaces[i].indices.push(index.nodeData);
+					node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+				}
+				// Remove the white spaces and the separator characters that might be present.
+				node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+				node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+			}
+			// Remove the white spaces and the separator characters that might be present.
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		}
+		// The next token should be the closing brace
+		let nextToken = StringUtils.getNextToken(fullText.substring(node.valueLength));
+		node.updateExport(nextToken);
+		if (nextToken.nodeData != '}') {
+			throw 'Unexpected token while parsing mesh normals: ' + nextToken.nodeData;
+		}
+		return node;
 	},
 }

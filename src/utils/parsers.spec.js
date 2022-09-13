@@ -255,4 +255,131 @@ describe('Parsers', () => {
 			} );
 		} );
 	});
+	describe('meshNormalNode', () => {
+		const expectedFace = new Types.Face();
+		expectedFace.indices = [0, 1, 2];
+		const testData = [
+			{
+				fullText: '{1;\n 0.0,0.0,0.0;,\n 1;\n 3,0,1,2;,}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertexFaces = [expectedFace];
+					return mesh;
+				})(),
+				expected: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.normals = [new Types.Vector3(0, 0, 0)];
+					mesh.normalFaces = [expectedFace];
+					mesh.vertexFaces = [expectedFace];
+					const nodeData = new Types.ExportedNode(mesh);
+					nodeData.valueLength = 34;
+					nodeData.lines = 3;
+					return nodeData;
+				})(),
+			},
+			{
+				fullText: '{1;\n 0.0,0.0,0.0;,\n 0;}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertexFaces = [];
+					return mesh;
+				})(),
+				expected: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.normals = [new Types.Vector3(0, 0, 0)];
+					mesh.normalFaces = [];
+					mesh.vertexFaces = [];
+					const nodeData = new Types.ExportedNode(mesh);
+					nodeData.valueLength = 23;
+					nodeData.lines = 2;
+					return nodeData;
+				})(),
+			},
+			{
+				fullText: '{\n8;                    // define 8 normals\n0.576350;0.574350;-0.574350;,\n-0.816497;0.408248;-0.408248;,\n-0.576350;0.574350;0.574350;,\n0.816497;0.408248;0.408248;,\n0.574350;-0.574350;-0.576350;,\n-0.408248;-0.408248;-0.816497;,\n-0.574350;-0.574350;0.576350;,\n0.408248;-0.408248;0.816497;;\n12;                   // For the 12 faces,\n3;0,1,2;,             // define the normals\n3;0,2,3;,\n3;0,4,5;,\n3;0,5,1;,\n3;1,5,6;,\n3;1,6,2;,\n3;2,6,7;,\n3;2,7,3;,\n3;3,7,4;,\n3;3,4,0;,\n3;4,7,6;,\n3;4,6,5;;\n}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					// length matching the number of faces
+					mesh.vertexFaces = [expectedFace,expectedFace,expectedFace,expectedFace,expectedFace,expectedFace,expectedFace,expectedFace,expectedFace,expectedFace,expectedFace,expectedFace];
+					return mesh;
+				})(),
+				expected: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.normals = [
+						new Types.Vector3(0.576350, 0.574350, -0.574350),
+						new Types.Vector3(-0.816497, 0.408248, -0.408248),
+						new Types.Vector3(-0.576350, 0.574350, 0.574350),
+						new Types.Vector3(0.816497, 0.408248, 0.408248),
+						new Types.Vector3(0.574350, -0.574350, -0.576350),
+						new Types.Vector3(-0.408248, -0.408248, -0.816497),
+						new Types.Vector3(-0.574350, -0.574350, 0.576350),
+						new Types.Vector3(0.408248, -0.408248, 0.816497),
+					];
+					mesh.normalFaces = [
+						(() => { const face = new Types.Face(); face.indices.push(0); face.indices.push(1); face.indices.push(2); return face;})(),
+						(() => { const face = new Types.Face(); face.indices.push(0); face.indices.push(2); face.indices.push(3); return face;})(),
+						(() => { const face = new Types.Face(); face.indices.push(0); face.indices.push(4); face.indices.push(5); return face;})(),
+						(() => { const face = new Types.Face(); face.indices.push(0); face.indices.push(5); face.indices.push(1); return face;})(),
+						(() => { const face = new Types.Face(); face.indices.push(1); face.indices.push(5); face.indices.push(6); return face;})(),
+						(() => { const face = new Types.Face(); face.indices.push(1); face.indices.push(6); face.indices.push(2); return face;})(),
+						(() => { const face = new Types.Face(); face.indices.push(2); face.indices.push(6); face.indices.push(7); return face;})(),
+						(() => { const face = new Types.Face(); face.indices.push(2); face.indices.push(7); face.indices.push(3); return face;})(),
+						(() => { const face = new Types.Face(); face.indices.push(3); face.indices.push(7); face.indices.push(4); return face;})(),
+						(() => { const face = new Types.Face(); face.indices.push(3); face.indices.push(4); face.indices.push(0); return face;})(),
+						(() => { const face = new Types.Face(); face.indices.push(4); face.indices.push(7); face.indices.push(6); return face;})(),
+						(() => { const face = new Types.Face(); face.indices.push(4); face.indices.push(6); face.indices.push(5); return face;})(),
+					];
+					mesh.vertexFaces = [expectedFace,expectedFace,expectedFace,expectedFace,expectedFace,expectedFace,expectedFace,expectedFace,expectedFace,expectedFace,expectedFace,expectedFace];
+					const nodeData = new Types.ExportedNode(mesh);
+					nodeData.valueLength = 486;
+					nodeData.lines = 23;
+					return nodeData;
+				})(),
+			},
+		];
+		// missing vertexData
+		// missing closing bracket
+		const wrongTestData = [
+			{
+				fullText: '{1;\n 0.0,0.0,0.0;,\n 1;\n 3,0,1,2;,}',
+				mesh: new Types.Mesh(),
+				exception: 'Normal face count does not match vertex face count.',
+			},
+			{
+				fullText: '{1;\n 0.0,0.0,0.0;,\n 1;\n 3,0,1,2;,',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertexFaces = [expectedFace];
+					return mesh;
+				})(),
+				exception: 'Unexpected token while parsing mesh normals: ',
+			},
+			{
+				fullText: '{1;\n 0.0,0.0,0.0;,\n 1;\n 3,0,1,2;,wrongsymbol}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertexFaces = [expectedFace];
+					return mesh;
+				})(),
+				exception: 'Unexpected token while parsing mesh normals: wrongsymbol',
+			},
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, mesh, expected}) => {
+				const nodeData = Parsers.meshNormalNode(fullText, mesh);
+				expect(nodeData).toEqual(expected);
+			} );
+			wrongTestData.forEach(({fullText, mesh}) => {
+				expect(() => Parsers.meshNormalNode(fullText, mesh)).toThrow();
+			} );
+		} );
+	});
 });
