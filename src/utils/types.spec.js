@@ -137,6 +137,9 @@ describe('Types', () => {
 			expect(mesh.vertices.length).toBe(0);
 			expect(mesh.vertexFaces).toBeInstanceOf(Array);
 			expect(mesh.vertexFaces.length).toBe(0);
+			expect(mesh.numTexCoords).toBe(0);
+			expect(mesh.texCoords).toBeInstanceOf(Array);
+			expect(mesh.texCoords.length).toBe(0);
 		});
 	});
 });

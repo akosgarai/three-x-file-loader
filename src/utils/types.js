@@ -75,6 +75,10 @@ class Mesh {
 		this.vertices = [];	//mPositions
 		// Vertex face indices
 		this.vertexFaces = [];	//mPosFaces
+		// number of texture coordinates
+		this.numTexCoords = 0;	//mNumTextures
+		// Texture coordinates Vector2
+		this.texCoords = [];	//mTexCoords
 
 	}
 };
