@@ -66,22 +66,25 @@ class Face {
 // https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileHelper.h#L112-L144
 class Mesh {
 	constructor() {
-		this.name = '';
+		this.name = '';	//mName
 		// Normal vectors Vector3
-		this.normals = [];
+		this.normals = [];	//mNormals
 		// Normal face indices
-		this.normalFaces = [];
+		this.normalFaces = [];	//mNormFaces
 		// Vertex positions Vector3
-		this.vertices = [];
+		this.vertices = [];	//mPositions
 		// Vertex face indices
-		this.vertexFaces = [];
+		this.vertexFaces = [];	//mPosFaces
 
 	}
 };
 module.exports = {
 	Color,
 	ExportedNode,
+	Face,
 	Material,
+	Mesh,
+	Scene,
 	Vector2,
 	Vector3,
 };
