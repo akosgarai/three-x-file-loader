@@ -584,4 +584,68 @@ describe('Parsers', () => {
 			} );
 		} );
 	});
+	describe('unknownNode', () => {
+		// testData is an array of objects with the following properties:
+		// - fullText: the full text of the rest of the model file
+		// - expected: the expected result of the templateNode parser function
+		const testData = [
+			{
+				fullText: '{}',
+				expected: {
+					valueLength: '{}'.length,
+					lines: 0,
+				},
+			},
+			{
+				fullText: 'DataNode {}',
+				expected: {
+					valueLength: 'DataNode {}'.length,
+					lines: 0,
+				},
+			},
+			{
+				fullText: 'ColorRGBA {\n <35ff44e0-6c7c-11cf-8f52-0040333594a3>\n FLOAT red;\n FLOAT green;\n FLOAT blue;\n FLOAT alpha;\n }',
+				expected: {
+					valueLength: 'ColorRGBA {\n <35ff44e0-6c7c-11cf-8f52-0040333594a3>\n FLOAT red;\n FLOAT green;\n FLOAT blue;\n FLOAT alpha;\n }'.length,
+					lines: 6,
+				},
+			},
+			{
+				fullText: ' TextureFilename {\n <a42790e1-7810-11cf-8f52-0040333594a3>\n STRING filename;\n}\n',
+				expected: {
+					valueLength: ' TextureFilename {\n <a42790e1-7810-11cf-8f52-0040333594a3>\n STRING filename;\n}'.length,
+					lines: 3,
+				},
+			},
+			{
+				fullText: '{2;\n0;1.0,1.0,1.0,0.0;,\n1;0.0,0.0,0.0,0.0;,}',
+				expected: {
+					valueLength: '{2;\n0;1.0,1.0,1.0,0.0;,\n1;0.0,0.0,0.0,0.0;,}'.length,
+					lines: 2,
+				},
+			},
+			{
+				fullText: '{\n1.000000;1.000000;1.000000;1.000000;;\n34.560001;\n0.577350;0.577350;0.577350;;\n0.000000;0.000000;0.000000;;\nTextureFilename {\n"texture/SSR06_Born2_dif.png";\n}\nBumpMapFilename {\n"texture/SSR06_Born2_bp_base.png";\n}\n}',
+				expected: {
+					valueLength: '{\n1.000000;1.000000;1.000000;1.000000;;\n34.560001;\n0.577350;0.577350;0.577350;;\n0.000000;0.000000;0.000000;;\nTextureFilename {\n"texture/SSR06_Born2_dif.png";\n}\nBumpMapFilename {\n"texture/SSR06_Born2_bp_base.png";\n}\n}'.length,
+					lines: 11,
+				},
+			},
+		];
+		const wrongTestData = [
+			'',
+			'{2;\n0;1.0,1.0,1.0,0.0;,\n1;0.0,0.0,0.0,0.0;,',
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, expected}) => {
+				const result = Parsers.unknownNode(fullText);
+				expect(result.valueLength).toEqual(expected.valueLength);
+				expect(result.lines).toEqual(expected.lines);
+				expect(result.nodeData).toEqual(null);
+			} );
+			wrongTestData.forEach(wrongTest => {
+				expect(() => Parsers.unknownNode(wrongTest)).toThrow('Unexpected end of file while parsing unknown data object');
+			} );
+		} );
+	});
 });

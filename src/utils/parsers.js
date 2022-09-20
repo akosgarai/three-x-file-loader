@@ -307,4 +307,116 @@ module.exports = {
 		}
 		return node;
 	},
+	// MeshMaterialListParser based on the assimp implementation: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L596-L652
+	meshMaterialListParser(fullText, mesh) {
+		let node = new Types.ExportedNode(mesh);
+		let head = this.headOfDataObject(fullText);
+		node.updateExport(head);
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		// read the number of materials
+		const count = StringUtils.readInteger(fullText.substring(node.valueLength));
+		node.updateExport(count);
+		// Remove the white spaces and the separator characters that might be present.
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		// read non triangulated face material index count
+		const numMatIndices = StringUtils.readInteger(fullText.substring(node.valueLength));
+		node.updateExport(numMatIndices);
+		// Remove the white spaces and the separator characters that might be present.
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		// some models have a material index count of 1... to be able to read them we
+		// replicate this single material index on every face
+		if (numMatIndices.nodeData != node.nodeData.vertexFaces.length && numMatIndices.nodeData != 1){
+			throw 'Per-Face material index count does not match face count';
+		}
+		// read per-face material indices
+		for (let i = 0; i < numMatIndices.nodeData; i++) {
+			const index = StringUtils.readInteger(fullText.substring(node.valueLength));
+			node.updateExport(index);
+			node.nodeData.faceMaterials.push(index.nodeData);
+			// Remove the white spaces and the separator characters that might be present.
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+			node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		}
+		// in certain versions, the face indices end with two semicolons.
+		if (node.valueLength < fullText.length && fullText[node.valueLength] == ';') {
+			// handle the second semicolon with increasing the value length
+			node.valueLength++;
+		}
+		// Remove the white spaces and the separator characters that might be present.
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		// if there was only a single material index, replicate it on all faces
+		while (node.nodeData.faceMaterials.length < node.nodeData.vertexFaces.length) {
+			node.nodeData.faceMaterials.push(node.nodeData.faceMaterials[node.nodeData.faceMaterials.length-1]);
+		}
+		// read following data objects
+		while (true) {
+			let nextToken = StringUtils.getNextToken(fullText.substring(node.valueLength));
+			node.updateExport(nextToken);
+			if (nextToken.nodeData == '') {
+				throw 'Unexpected end of file while parsing mesh material list';
+			} else if (nextToken.nodeData == '}') {
+				break;
+			} else if (nextToken.nodeData == '{') {
+				// In this case we have a material referenced by name
+				const materialName = StringUtils.getNextToken(fullText.substring(node.valueLength));
+				node.updateExport(materialName);
+				const material = new Types.Material();
+				material.name = materialName.nodeData;
+				material.isReference = true;
+				node.nodeData.materials.push(material);
+				node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+				const closingBrace = StringUtils.getNextToken(fullText.substring(node.valueLength));
+				node.updateExport(closingBrace);
+				if (closingBrace.nodeData != '}') {
+					throw 'Unexpected token while parsing mesh material list: ' + closingBrace.nodeData;
+				}
+				node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+			} else if (nextToken.nodeData == 'Material') {
+				// inlined material
+				const material = this.materialParser(fullText.substring(node.valueLength));
+				node.updateExport(material);
+				node.nodeData.materials.push(material.nodeData);
+				node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+			} else if (nextToken.nodeData == ';') {
+				// ignore semicolons
+				node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+			} else {
+				// ignore unknown data objects
+				node.updateExport(this.unknownNode(fullText.substring(node.valueLength)));
+			}
+		}
+	},
+	// UnknowDataObjectParser based on the assimp implementation: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L869-L895
+	unknownNode(fullText) {
+		const node = new Types.ExportedNode(null);
+		const exceptionMessage = 'Unexpected end of file while parsing unknown data object';
+		let depth = 0;
+		// find the opening brace
+		while (true) {
+			const nextToken = StringUtils.getNextToken(fullText.substring(node.valueLength));
+			node.updateExport(nextToken);
+			if (nextToken.nodeData == '') {
+				throw exceptionMessage;
+			} else if (nextToken.nodeData == '{') {
+				depth++;
+				break;
+			}
+		}
+		// find the closing brace
+		while (depth > 0) {
+			const nextToken = StringUtils.getNextToken(fullText.substring(node.valueLength));
+			node.updateExport(nextToken);
+			if (nextToken.nodeData == '') {
+				throw exceptionMessage;
+			} else if (nextToken.nodeData == '{') {
+				depth++;
+			} else if (nextToken.nodeData == '}') {
+				depth--;
+			}
+		}
+		return node;
+	},
 }
