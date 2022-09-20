@@ -107,6 +107,7 @@ describe('Types', () => {
 			expect(material.bumpScale).toBe(1);
 			expect(material.emissiveMap).toBe('');
 			expect(material.lightMap).toBe('');
+			expect(material.isReference).toBe(false);
 		});
 	});
 	describe('Scene', () => {
@@ -143,6 +144,10 @@ describe('Types', () => {
 			expect(mesh.numColors).toBe(0);
 			expect(mesh.colors).toBeInstanceOf(Object);
 			expect(Object.keys(mesh.colors).length).toBe(0);
+			expect(mesh.faceMaterials).toBeInstanceOf(Array);
+			expect(mesh.faceMaterials.length).toBe(0);
+			expect(mesh.materials).toBeInstanceOf(Array);
+			expect(mesh.materials.length).toBe(0);
 		});
 	});
 });

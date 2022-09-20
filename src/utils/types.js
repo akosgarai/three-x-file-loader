@@ -49,6 +49,8 @@ class Material {
 		this.emissiveMap = '';
 		// lightMapFileName
 		this.lightMap = '';
+		// is reference flag - if true, the material is given only by name
+		this.isReference = false;
 	}
 };
 class Scene {
@@ -83,7 +85,10 @@ class Mesh {
 		this.numColors = 0;	//mNumColorSets
 		// vertex colors
 		this.colors = {};	//mColors
-
+		// face materials
+		this.faceMaterials = [];	//mFaceMaterials
+		// materials
+		this.materials = [];	//mMaterials
 	}
 };
 module.exports = {
