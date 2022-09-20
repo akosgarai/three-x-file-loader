@@ -376,7 +376,7 @@ module.exports = {
 				node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
 			} else if (nextToken.nodeData == 'Material') {
 				// inlined material
-				const material = this.materialParser(fullText.substring(node.valueLength));
+				const material = this.materialNode(fullText.substring(node.valueLength));
 				node.updateExport(material);
 				node.nodeData.materials.push(material.nodeData);
 				node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
@@ -388,6 +388,7 @@ module.exports = {
 				node.updateExport(this.unknownNode(fullText.substring(node.valueLength)));
 			}
 		}
+		return node;
 	},
 	// UnknowDataObjectParser based on the assimp implementation: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L869-L895
 	unknownNode(fullText) {

@@ -648,4 +648,245 @@ describe('Parsers', () => {
 			} );
 		} );
 	});
+	describe('meshMaterialListParser', () => {
+		const testData = [
+			{
+				fullText: '{\n2;\n12;\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n1,\n1,\n1,\n1;;\n{RedMaterial}\n{GreenMaterial}\n}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertexFaces = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+					return mesh;
+				})(),
+				expected: {
+					valueLength: '{\n2;\n12;\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n1,\n1,\n1,\n1;;\n{RedMaterial}\n{GreenMaterial}\n}'.length,
+					lines: 17,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						mesh.name = 'mesh_0';
+						mesh.vertexFaces = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+						mesh.faceMaterials = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1];
+						mesh.materials = [
+							(() => {
+								const mat = new Types.Material();
+								mat.name = 'RedMaterial';
+								mat.isReference = true;
+								return mat;
+							})(),
+							(() => {
+								const mat = new Types.Material();
+								mat.name = 'GreenMaterial';
+								mat.isReference = true;
+								return mat;
+							})(),
+						];
+						return mesh;
+					})(),
+				},
+			},
+			{
+				fullText: '{\n2;\n12;\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n1,\n1,\n1,\n1;;\nMaterial {\n1.000000;1.000000;1.000000;1.000000;;\n9.999999;\n0.000000;0.000000;0.000000;;\n0.000000;0.000000;0.000000;;\n\nTextureFilename {\n"zippo.png";\n}\n}\n{GreenMaterial}\n}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertexFaces = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+					return mesh;
+				})(),
+				expected: {
+					valueLength: '{\n2;\n12;\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n1,\n1,\n1,\n1;;\nMaterial {\n1.000000;1.000000;1.000000;1.000000;;\n9.999999;\n0.000000;0.000000;0.000000;;\n0.000000;0.000000;0.000000;;\n\nTextureFilename {\n"zippo.png";\n}\n}\n{GreenMaterial}\n}'.length,
+					lines: 26,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						mesh.name = 'mesh_0';
+						mesh.vertexFaces = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+						mesh.faceMaterials = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1];
+						mesh.materials = [
+							(() => {
+								const mat = new Types.Material();
+								mat.isReference = false;
+								mat.color = new Types.Color(1, 1, 1);
+								mat.map = 'zippo.png';
+								mat.name = 'material_160';
+								mat.shininess = 9.999999;
+								return mat;
+							})(),
+							(() => {
+								const mat = new Types.Material();
+								mat.name = 'GreenMaterial';
+								mat.isReference = true;
+								return mat;
+							})(),
+						];
+						return mesh;
+					})(),
+				},
+			},
+			{
+				// Ignoring the semicolon after the last material
+				fullText: '{\n2;\n12;\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n1,\n1,\n1,\n1;;\nMaterial {\n1.000000;1.000000;1.000000;1.000000;;\n9.999999;\n0.000000;0.000000;0.000000;;\n0.000000;0.000000;0.000000;;\n\nTextureFilename {\n"zippo.png";\n}\n};\n{GreenMaterial}\n}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertexFaces = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+					return mesh;
+				})(),
+				expected: {
+					valueLength: '{\n2;\n12;\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n1,\n1,\n1,\n1;;\nMaterial {\n1.000000;1.000000;1.000000;1.000000;;\n9.999999;\n0.000000;0.000000;0.000000;;\n0.000000;0.000000;0.000000;;\n\nTextureFilename {\n"zippo.png";\n}\n};\n{GreenMaterial}\n}'.length,
+					lines: 26,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						mesh.name = 'mesh_0';
+						mesh.vertexFaces = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+						mesh.faceMaterials = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1];
+						mesh.materials = [
+							(() => {
+								const mat = new Types.Material();
+								mat.isReference = false;
+								mat.color = new Types.Color(1, 1, 1);
+								mat.map = 'zippo.png';
+								mat.name = 'material_161';
+								mat.shininess = 9.999999;
+								return mat;
+							})(),
+							(() => {
+								const mat = new Types.Material();
+								mat.name = 'GreenMaterial';
+								mat.isReference = true;
+								return mat;
+							})(),
+						];
+						return mesh;
+					})(),
+				},
+			},
+			{
+				// unknown node has to be skipped.
+				fullText: '{\n2;\n12;\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n1,\n1,\n1,\n1;;\n{RedMaterial}\n{GreenMaterial}\n WrongNode { WrongNode,\nContent }\n}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertexFaces = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+					return mesh;
+				})(),
+				expected: {
+					valueLength: '{\n2;\n12;\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n1,\n1,\n1,\n1;;\n{RedMaterial}\n{GreenMaterial}\n WrongNode { WrongNode,\nContent }\n}'.length,
+					lines: 19,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						mesh.name = 'mesh_0';
+						mesh.vertexFaces = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+						mesh.faceMaterials = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1];
+						mesh.materials = [
+							(() => {
+								const mat = new Types.Material();
+								mat.name = 'RedMaterial';
+								mat.isReference = true;
+								return mat;
+							})(),
+							(() => {
+								const mat = new Types.Material();
+								mat.name = 'GreenMaterial';
+								mat.isReference = true;
+								return mat;
+							})(),
+						];
+						return mesh;
+					})(),
+				},
+			},
+			{
+				// handle single material index.
+				fullText: '{\n1;\n1;\n0;;\n{RedMaterial}\n}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertexFaces = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+					return mesh;
+				})(),
+				expected: {
+					valueLength: '{\n1;\n1;\n0;;\n{RedMaterial}\n}'.length,
+					lines: 5,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						mesh.name = 'mesh_0';
+						mesh.vertexFaces = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+						mesh.faceMaterials = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+						mesh.materials = [
+							(() => {
+								const mat = new Types.Material();
+								mat.name = 'RedMaterial';
+								mat.isReference = true;
+								return mat;
+							})(),
+						];
+						return mesh;
+					})(),
+				},
+			},
+			{
+				// handle no face data.
+				fullText: '{\n1;\n0;\n{RedMaterial}\n}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					return mesh;
+				})(),
+				expected: {
+					valueLength: '{\n1;\n0;\n{RedMaterial}\n}'.length,
+					lines: 4,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						mesh.name = 'mesh_0';
+						mesh.materials = [
+							(() => {
+								const mat = new Types.Material();
+								mat.name = 'RedMaterial';
+								mat.isReference = true;
+								return mat;
+							})(),
+						];
+						return mesh;
+					})(),
+				},
+			},
+		];
+		const wrongData = [
+			{
+				fullText: '{\n2;\n12;\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n1,\n1,\n1,\n1;;\n{RedMaterial}\n{GreenMaterial}\n}',
+				mesh: new Types.Mesh(),
+				exception: 'Per-Face material index count does not match face count',
+			},
+			{
+				fullText: '{\n2;\n12;\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n1,\n1,\n1,\n1;;',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertexFaces = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+					return mesh;
+				})(),
+				exception: 'Unexpected end of file while parsing mesh material list',
+			},
+			{
+				fullText: '{\n2;\n12;\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n1,\n1,\n1,\n1;;\nMaterial {\n1.000000;1.000000;1.000000;1.000000;;\n9.999999;\n0.000000;0.000000;0.000000;;\n0.000000;0.000000;0.000000;;\n\nTextureFilename {\n"zippo.png";\n}\n}\n{GreenMaterial wrong\n}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					mesh.vertexFaces = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+					return mesh;
+				})(),
+				exception: 'Unexpected token while parsing mesh material list: wrong',
+			},
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, mesh, expected}) => {
+				const result = Parsers.meshMaterialListParser(fullText, mesh);
+				expect(result.valueLength).toEqual(expected.valueLength);
+				expect(result.lines).toEqual(expected.lines);
+				expect(result.nodeData).toEqual(expected.mesh);
+			} );
+			wrongData.forEach(({fullText, mesh, exception}) => {
+				expect(() => Parsers.meshMaterialListParser(fullText, mesh)).toThrow(exception);
+			} );
+		} );
+	});
 });
