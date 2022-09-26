@@ -126,6 +126,23 @@ describe('Types', () => {
 			expect(face.indices.length).toBe(0);
 		});
 	});
+	describe('BoneWeight', () => {
+		test('constructor', () => {
+			const bw = new Types.BoneWeight();
+			expect(bw.weight).toBe(null);
+			expect(bw.boneIndex).toBe(null);
+		});
+	});
+	describe('Bone', () => {
+		test('constructor', () => {
+			const bone = new Types.Bone();
+			expect(bone.name).toBe(null);
+			expect(bone.boneWeights).toBeInstanceOf(Array);
+			expect(bone.boneWeights.length).toBe(0);
+			expect(bone.offsetMatrix).toBeInstanceOf(Array);
+			expect(bone.offsetMatrix.length).toBe(0);
+		});
+	});
 	describe('Mesh', () => {
 		test('constructor', () => {
 			const mesh = new Types.Mesh();
@@ -148,6 +165,8 @@ describe('Types', () => {
 			expect(mesh.faceMaterials.length).toBe(0);
 			expect(mesh.materials).toBeInstanceOf(Array);
 			expect(mesh.materials.length).toBe(0);
+			expect(mesh.bones).toBeInstanceOf(Array);
+			expect(mesh.bones.length).toBe(0);
 		});
 	});
 });

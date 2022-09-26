@@ -30,6 +30,19 @@ class Color {
 		this.b = b;
 	}
 };
+class BoneWeight {
+	constructor() {
+		this.weight = null; // mWeight
+		this.boneIndex = null; // mVertex
+	}
+}
+class Bone {
+	constructor() {
+		this.name = null; // mName
+		this.boneWeights = []; // mWeights
+		this.offsetMatrix = []; // mOffsetMatrix
+	}
+}
 class Material {
 	constructor() {
 		this.name = '';
@@ -89,9 +102,13 @@ class Mesh {
 		this.faceMaterials = [];	//mFaceMaterials
 		// materials
 		this.materials = [];	//mMaterials
+		// bones
+		this.bones = [];	//mBones
 	}
 };
 module.exports = {
+	Bone,
+	BoneWeight,
 	Color,
 	ExportedNode,
 	Face,
