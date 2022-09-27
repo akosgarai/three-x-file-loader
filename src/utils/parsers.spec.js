@@ -1219,4 +1219,51 @@ describe('Parsers', () => {
 			} );
 		});
 	});
+	describe('transformationMatrixNode', () => {
+		const testData = [
+			{
+				fullText: '{\n0.000000,-0.000000,1.000000,0.000000,1.000000,0.000000,-0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,6.600000,0.000000,1.000000;;\n}',
+				expected: {
+					valueLength: '{\n0.000000,-0.000000,1.000000,0.000000,1.000000,0.000000,-0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,6.600000,0.000000,1.000000;;\n}'.length,
+					lines: 2,
+					matrix: [
+						0.000000,-0.000000,1.000000,0.000000,
+						1.000000,0.000000,-0.000000,0.000000,
+						0.000000,1.000000,0.000000,0.000000,
+						0.000000,6.600000,0.000000,1.000000,
+					],
+				},
+			},
+			{
+				fullText: '{\n0.000000,-0.000000,1.000000,0.000000,1.000000,0.000000,-0.000000,0.000000,-0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,3.000000,1.000000;;\n}',
+				expected: {
+					valueLength: '{\n0.000000,-0.000000,1.000000,0.000000,1.000000,0.000000,-0.000000,0.000000,-0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,3.000000,1.000000;;\n}'.length,
+					lines: 2,
+					matrix: [
+						0.000000,-0.000000,1.000000,0.000000,
+						1.000000,0.000000,-0.000000,0.000000,
+						-0.000000,1.000000,0.000000,0.000000,
+						0.000000,0.000000,3.000000,1.000000,
+					],
+				},
+			},
+		];
+		const wrongData = [
+			{
+				fullText: '{\n0.000000,-0.000000,1.000000,0.000000,1.000000,0.000000,-0.000000,0.000000,-0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,3.000000,1.000000;;\nWrong',
+				exception: 'Unexpected token while parsing transformationMatrix node: Wrong',
+			},
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, expected}) => {
+				const result = Parsers.transformationMatrixNode(fullText);
+				expect(result.valueLength).toEqual(expected.valueLength);
+				expect(result.lines).toEqual(expected.lines);
+				expect(result.nodeData).toEqual(expected.matrix);
+			} );
+			wrongData.forEach(({fullText, exception}) => {
+				expect(() => Parsers.transformationMatrixNode(fullText)).toThrow(exception);
+			} );
+		});
+	});
 });

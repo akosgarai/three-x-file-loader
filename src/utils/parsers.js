@@ -588,4 +588,28 @@ module.exports = {
 		}
 		return node;
 	},
+	// TransformationMatrixNode parser based on the assimp implementation: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L361-L386
+	transformationMatrixNode(fullText) {
+		const node = new Types.ExportedNode(null);
+		const head = this.headOfDataObject(fullText);
+		node.updateExport(head);
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		const matrix = [];
+		for (let i = 0; i < 16; i++) {
+			const value = StringUtils.readFloat(fullText.substring(node.valueLength));
+			node.updateExport(value);
+			matrix.push(value.nodeData);
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		}
+		node.nodeData = matrix;
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		// The next token should be the closing brace
+		const nextToken = StringUtils.getNextToken(fullText.substring(node.valueLength));
+		node.updateExport(nextToken);
+		if (nextToken.nodeData != '}') {
+			throw 'Unexpected token while parsing transformationMatrix node: ' + nextToken.nodeData;
+		}
+		return node;
+	},
 }
