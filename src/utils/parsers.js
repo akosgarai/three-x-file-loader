@@ -308,7 +308,7 @@ module.exports = {
 		return node;
 	},
 	// MeshMaterialListNode based on the assimp implementation: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L596-L652
-	MeshMaterialListNode(fullText, mesh) {
+	meshMaterialListNode(fullText, mesh) {
 		let node = new Types.ExportedNode(mesh);
 		let head = this.headOfDataObject(fullText);
 		node.updateExport(head);
@@ -483,14 +483,17 @@ module.exports = {
 	},
 	// Mesh Node parser based on the assimp implementation: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L389-L445
 	meshNode(fullText) {
-		const meshName = this.headOfDataObject();
-		const mesh = new THREE.Mesh();
-		mesh.name = meshName;
+		const meshName = this.headOfDataObject(fullText);
+		let mesh = new Types.Mesh();
+		mesh.name = meshName.nodeData;
 		let node = new Types.ExportedNode(null);
 		node.updateExport(meshName);
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
 		// Read the vertex count
 		const vertexCount = StringUtils.readInteger(fullText.substring(node.valueLength));
 		node.updateExport(vertexCount);
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
 		// read vertexCount.nodeData vertices into an array with the StringUtils.readVector3 function
 		for (let i = 0; i < vertexCount.nodeData; i++) {
 			const vertex = StringUtils.readVector3(fullText.substring(node.valueLength));
@@ -507,7 +510,7 @@ module.exports = {
 		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
 		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
 		for (let i = 0; i < faceCount.nodeData; i++) {
-			const face = Types.Face();
+			const face = new Types.Face();
 			const numIndices = StringUtils.readInteger(fullText.substring(node.valueLength));
 			node.updateExport(numIndices);
 			// the number is followed by a colon
@@ -530,7 +533,7 @@ module.exports = {
 			let nextToken = StringUtils.getNextToken(fullText.substring(node.valueLength));
 			node.updateExport(nextToken);
 			if (nextToken.nodeData == '') {
-				throw 'Unexpected end of file while parsing mesh material list';
+				throw 'Unexpected end of file while parsing mesh';
 			} else if (nextToken.nodeData == '}') {
 				break;
 			} else if (nextToken.nodeData == 'MeshNormals') {

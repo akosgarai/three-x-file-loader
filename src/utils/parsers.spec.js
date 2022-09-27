@@ -648,7 +648,7 @@ describe('Parsers', () => {
 			} );
 		} );
 	});
-	describe('MeshMaterialListNode', () => {
+	describe('meshMaterialListNode', () => {
 		const testData = [
 			{
 				fullText: '{\n2;\n12;\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n1,\n1,\n1,\n1;;\n{RedMaterial}\n{GreenMaterial}\n}',
@@ -879,13 +879,13 @@ describe('Parsers', () => {
 		];
 		test('General test', () => {
 			testData.forEach(({fullText, mesh, expected}) => {
-				const result = Parsers.MeshMaterialListNode(fullText, mesh);
+				const result = Parsers.meshMaterialListNode(fullText, mesh);
 				expect(result.valueLength).toEqual(expected.valueLength);
 				expect(result.lines).toEqual(expected.lines);
 				expect(result.nodeData).toEqual(expected.mesh);
 			} );
 			wrongData.forEach(({fullText, mesh, exception}) => {
-				expect(() => Parsers.MeshMaterialListNode(fullText, mesh)).toThrow(exception);
+				expect(() => Parsers.meshMaterialListNode(fullText, mesh)).toThrow(exception);
 			} );
 		} );
 	});
@@ -963,5 +963,215 @@ describe('Parsers', () => {
 				expect(() => Parsers.skinWeightsNode(fullText, mesh)).toThrow(exception);
 			} );
 		} );
+	});
+	describe('meshNode', () => {
+		const testData = [
+			{
+				fullText: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\n}',
+				expected: {
+					valueLength: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\n}'.length,
+					lines: 8,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						mesh.name = 'MyMeshName';
+						mesh.vertices = [
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+						];
+						const face1 = new Types.Face();
+						face1.indices = [0, 1, 2];
+						const face2 = new Types.Face();
+						face2.indices = [0, 1, 2];
+						mesh.vertexFaces = [face1, face2];
+						return mesh;
+					})(),
+				},
+			},
+			{
+				fullText: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\nMeshNormals {\n3;\n 0.0;0.0;0.0;,\n 0.0;0.0;0.0;,\n 0.0;0.0;0.0;,\n 2;\n 3,0,1,2;,\n 3,0,1,2;;}\n}',
+				expected: {
+					valueLength: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\nMeshNormals {\n3;\n 0.0;0.0;0.0;,\n 0.0;0.0;0.0;,\n 0.0;0.0;0.0;,\n 2;\n 3,0,1,2;,\n 3,0,1,2;;}\n}'.length,
+					lines: 16,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						mesh.name = 'MyMeshName';
+						mesh.vertices = [
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+						];
+						const face1 = new Types.Face();
+						face1.indices = [0, 1, 2];
+						const face2 = new Types.Face();
+						face2.indices = [0, 1, 2];
+						mesh.vertexFaces = [face1, face2];
+						mesh.normalFaces = [face1, face2];
+						mesh.normals = [new Types.Vector3(0, 0, 0), new Types.Vector3(0, 0, 0), new Types.Vector3(0, 0, 0)];
+						return mesh;
+					})(),
+				},
+			},
+			{
+				fullText: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\nMeshTextureCoords {3;\n 0.000000;1.000000;\n0.000000;0.000000;\n1.000000;1.000000;;\n}\n}',
+				expected: {
+					valueLength: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\nMeshTextureCoords {3;\n 0.000000;1.000000;\n0.000000;0.000000;\n1.000000;1.000000;;\n}\n}'.length,
+					lines: 13,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						mesh.name = 'MyMeshName';
+						mesh.vertices = [
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+						];
+						const face1 = new Types.Face();
+						face1.indices = [0, 1, 2];
+						const face2 = new Types.Face();
+						face2.indices = [0, 1, 2];
+						mesh.vertexFaces = [face1, face2];
+						mesh.texCoords = [
+							new Types.Vector2(0.000000, 1.000000),
+							new Types.Vector2(0.000000, 0.000000),
+							new Types.Vector2(1.000000, 1.000000),
+						];
+						return mesh;
+					})(),
+				},
+			},
+			{
+				fullText: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\nMeshVertexColors {3;\n0;1.0,1.0,1.0,0.0;,\n1;0.0,0.0,0.0,0.0;,\n2;0.0,0.0,0.0,0.0;,}\n}',
+				expected: {
+					valueLength: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\nMeshVertexColors {3;\n0;1.0,1.0,1.0,0.0;,\n1;0.0,0.0,0.0,0.0;,\n2;0.0,0.0,0.0,0.0;,}\n}'.length,
+					lines: 12,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						mesh.name = 'MyMeshName';
+						mesh.vertices = [
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+						];
+						const face1 = new Types.Face();
+						face1.indices = [0, 1, 2];
+						const face2 = new Types.Face();
+						face2.indices = [0, 1, 2];
+						mesh.vertexFaces = [face1, face2];
+						mesh.colors = {
+							0: new Types.Color(1.0, 1.0, 1.0, 0.0),
+							1: new Types.Color(0.0, 0.0, 0.0, 0.0),
+							2: new Types.Color(0.0, 0.0, 0.0, 0.0),
+						};
+						return mesh;
+					})(),
+				},
+			},
+			{
+				fullText: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\nMeshMaterialList {\n2;\n2;\n0,\n1;;\n{RedMaterial}\n{GreenMaterial}\n}\n}',
+				expected: {
+					valueLength: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\nMeshMaterialList {\n2;\n2;\n0,\n1;;\n{RedMaterial}\n{GreenMaterial}\n}\n}'.length,
+					lines: 16,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						mesh.name = 'MyMeshName';
+						mesh.vertices = [
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+						];
+						const face1 = new Types.Face();
+						face1.indices = [0, 1, 2];
+						const face2 = new Types.Face();
+						face2.indices = [0, 1, 2];
+						mesh.vertexFaces = [face1, face2];
+						mesh.faceMaterials = [0, 1];
+						mesh.materials = [
+							(() => {
+								const mat = new Types.Material();
+								mat.name = 'RedMaterial';
+								mat.isReference = true;
+								return mat;
+							})(),
+							(() => {
+								const mat = new Types.Material();
+								mat.name = 'GreenMaterial';
+								mat.isReference = true;
+								return mat;
+							})(),
+						];
+						return mesh;
+					})(),
+				},
+			},
+			{
+				fullText: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\nVertexDuplicationIndices {\n2;\n2;\n0,\n1;;\n{RedMaterial}\n{GreenMaterial}\n}\nXSkinMeshHeader {\n2;\n2;\n0,\n1;;\n{RedMaterial}\n{GreenMaterial}\n}\nUnknownNode {\n2;\n2;\n0,\n1;;\n{RedMaterial}\n{GreenMaterial}\n}\n}',
+				expected: {
+					valueLength: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\nVertexDuplicationIndices {\n2;\n2;\n0,\n1;;\n{RedMaterial}\n{GreenMaterial}\n}\nXSkinMeshHeader {\n2;\n2;\n0,\n1;;\n{RedMaterial}\n{GreenMaterial}\n}\nUnknownNode {\n2;\n2;\n0,\n1;;\n{RedMaterial}\n{GreenMaterial}\n}\n}'.length,
+					lines: 32,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						mesh.name = 'MyMeshName';
+						mesh.vertices = [
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+						];
+						const face1 = new Types.Face();
+						face1.indices = [0, 1, 2];
+						const face2 = new Types.Face();
+						face2.indices = [0, 1, 2];
+						mesh.vertexFaces = [face1, face2];
+						return mesh;
+					})(),
+				},
+			},
+			{
+				fullText: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\nSkinWeights {\n"swName";\n1;\n1;\n1.000000;\n1.000000,0.000000,0.000000,0.000000,0.000000,-0.000000,-1.000000,0.000000,0.000000,1.000000,-0.000000,0.000000,0.000000,0.000000,6.600000,1.000000;;\n}\n}',
+				expected: {
+					valueLength: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\nSkinWeights {\n"swName";\n1;\n1;\n1.000000;\n1.000000,0.000000,0.000000,0.000000,0.000000,-0.000000,-1.000000,0.000000,0.000000,1.000000,-0.000000,0.000000,0.000000,0.000000,6.600000,1.000000;;\n}\n}'.length,
+					lines: 15,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						mesh.name = 'MyMeshName';
+						mesh.vertices = [
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+						];
+						const face1 = new Types.Face();
+						face1.indices = [0, 1, 2];
+						const face2 = new Types.Face();
+						face2.indices = [0, 1, 2];
+						mesh.vertexFaces = [face1, face2];
+						const bone = new Types.Bone();
+						bone.name = 'swName';
+						const boneWeight = new Types.BoneWeight();
+						boneWeight.boneIndex = 1;
+						boneWeight.weight = 1.000000;
+						bone.boneWeights = [boneWeight];
+						bone.offsetMatrix = [1.000000,0.000000,0.000000,0.000000,0.000000,-0.000000,-1.000000,0.000000,0.000000,1.000000,-0.000000,0.000000,0.000000,0.000000,6.600000,1.000000];
+						mesh.bones = [bone];
+						return mesh;
+					})(),
+				},
+			},
+		];
+		const wrongData = [
+			{
+				fullText: 'MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\nSkinWeights {\n"swName";\n1;\n1;\n1.000000;\n1.000000,0.000000,0.000000,0.000000,0.000000,-0.000000,-1.000000,0.000000,0.000000,1.000000,-0.000000,0.000000,0.000000,0.000000,6.600000,1.000000;;\n}',
+				exception: 'Unexpected end of file while parsing mesh',
+			},
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, expected}) => {
+				const result = Parsers.meshNode(fullText);
+				expect(result.valueLength).toEqual(expected.valueLength);
+				expect(result.lines).toEqual(expected.lines);
+				expect(result.nodeData).toEqual(expected.mesh);
+			} );
+			wrongData.forEach(({fullText, exception}) => {
+				expect(() => Parsers.meshNode(fullText)).toThrow(exception);
+			} );
+		});
 	});
 });
