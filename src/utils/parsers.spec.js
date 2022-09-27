@@ -1174,4 +1174,49 @@ describe('Parsers', () => {
 			} );
 		});
 	});
+	describe('animTicksPerSecondNode', () => {
+		const testData = [
+			{
+				fullText: '{\n1;\n}',
+				expected: {
+					valueLength: '{\n1;\n}'.length,
+					lines: 2,
+					animTicksPerSecond: 1,
+				},
+			},
+			{
+				fullText: '{\n10;\n}',
+				expected: {
+					valueLength: '{\n10;\n}'.length,
+					lines: 2,
+					animTicksPerSecond: 10,
+				},
+			},
+			{
+				fullText: '{\n10,\n}',
+				expected: {
+					valueLength: '{\n10,\n}'.length,
+					lines: 2,
+					animTicksPerSecond: 10,
+				},
+			},
+		];
+		const wrongData = [
+			{
+				fullText: '{\n10,\nWrong',
+				exception: 'Unexpected token while parsing aminTicksPerSecond node: Wrong',
+			},
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, expected}) => {
+				const result = Parsers.animTicksPerSecondNode(fullText);
+				expect(result.valueLength).toEqual(expected.valueLength);
+				expect(result.lines).toEqual(expected.lines);
+				expect(result.nodeData).toEqual(expected.animTicksPerSecond);
+			} );
+			wrongData.forEach(({fullText, exception}) => {
+				expect(() => Parsers.animTicksPerSecondNode(fullText)).toThrow(exception);
+			} );
+		});
+	});
 });
