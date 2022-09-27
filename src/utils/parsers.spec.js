@@ -889,4 +889,79 @@ describe('Parsers', () => {
 			} );
 		} );
 	});
+	describe('skinWeightsNode', () => {
+		const testData = [
+			{
+				fullText: '{\n"swName";\n1;\n1;\n1.000000;\n1.000000,0.000000,0.000000,0.000000,0.000000,-0.000000,-1.000000,0.000000,0.000000,1.000000,-0.000000,0.000000,0.000000,0.000000,6.600000,1.000000;;\n}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					return mesh;
+				})(),
+				expected: {
+					valueLength: '{\n"swName";\n1;\n1;\n1.000000;\n1.000000,0.000000,0.000000,0.000000,0.000000,-0.000000,-1.000000,0.000000,0.000000,1.000000,-0.000000,0.000000,0.000000,0.000000,6.600000,1.000000;;\n}'.length,
+					lines: 6,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						const bone = new Types.Bone();
+						bone.name = 'swName';
+						const boneWeight = new Types.BoneWeight();
+						boneWeight.boneIndex = 1;
+						boneWeight.weight = 1.000000;
+						bone.boneWeights = [boneWeight];
+						bone.offsetMatrix = [1.000000,0.000000,0.000000,0.000000,0.000000,-0.000000,-1.000000,0.000000,0.000000,1.000000,-0.000000,0.000000,0.000000,0.000000,6.600000,1.000000];
+						mesh.bones = [bone];
+						mesh.name = 'mesh_0';
+						return mesh;
+					})(),
+				},
+			},
+			{
+				fullText: '{\n"swName";\n2;\n1,\n2;\n1.000000,\n1.000000;\n1.000000,0.000000,0.000000,0.000000,0.000000,-0.000000,-1.000000,0.000000,0.000000,1.000000,-0.000000,0.000000,0.000000,0.000000,6.600000,1.000000;;\n}',
+				mesh: (() => {
+					const mesh = new Types.Mesh();
+					mesh.name = 'mesh_0';
+					return mesh;
+				})(),
+				expected: {
+					valueLength: '{\n"swName";\n2;\n1,\n2;\n1.000000,\n1.000000;\n1.000000,0.000000,0.000000,0.000000,0.000000,-0.000000,-1.000000,0.000000,0.000000,1.000000,-0.000000,0.000000,0.000000,0.000000,6.600000,1.000000;;\n}'.length,
+					lines: 8,
+					mesh: (() => {
+						const mesh = new Types.Mesh();
+						const bone = new Types.Bone();
+						bone.name = 'swName';
+						const bW01 = new Types.BoneWeight();
+						bW01.boneIndex = 1;
+						bW01.weight = 1.000000;
+						const bW02 = new Types.BoneWeight();
+						bW02.boneIndex = 2;
+						bW02.weight = 1.000000;
+						bone.boneWeights = [bW01, bW02];
+						bone.offsetMatrix = [1.000000,0.000000,0.000000,0.000000,0.000000,-0.000000,-1.000000,0.000000,0.000000,1.000000,-0.000000,0.000000,0.000000,0.000000,6.600000,1.000000];
+						mesh.bones = [bone];
+						mesh.name = 'mesh_0';
+						return mesh;
+					})(),
+				},
+			},
+		];
+		const wrongData = [
+			{
+				fullText: '{\n"swName";\n2;\n1,\n2;\n1.000000,\n1.000000;\n1.000000,0.000000,0.000000,0.000000,0.000000,-0.000000,-1.000000,0.000000,0.000000,1.000000,-0.000000,0.000000,0.000000,0.000000,6.600000,1.000000;;\nSomethingWrong here }',
+				mesh: new Types.Mesh(),
+				exception: 'Unexpected token while parsing mesh skin weights node: SomethingWrong',
+			},
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, mesh, expected}) => {
+				const result = Parsers.skinWeightsNode(fullText, mesh);
+				expect(result.valueLength).toEqual(expected.valueLength);
+				expect(result.lines).toEqual(expected.lines);
+				expect(result.nodeData).toEqual(expected.mesh);
+			} );
+			wrongData.forEach(({fullText, mesh, exception}) => {
+				expect(() => Parsers.skinWeightsNode(fullText, mesh)).toThrow(exception);
+			} );
+		} );
+	});
 });

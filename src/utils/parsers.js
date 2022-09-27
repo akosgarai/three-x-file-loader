@@ -420,4 +420,65 @@ module.exports = {
 		}
 		return node;
 	},
+	// SkinWeightsNode Parser based on the assimp implementation: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L448-L495
+	skinWeightsNode(fullText, mesh) {
+		let node = new Types.ExportedNode(mesh);
+		const head = this.headOfDataObject(fullText);
+		node.updateExport(head);
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		const name = StringUtils.readString(fullText.substring(node.valueLength));
+		node.updateExport(name);
+		let bone = new Types.Bone();
+		bone.name = name.nodeData;
+		// Remove the white spaces and the separator characters that might be present.
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		// read the number of bones
+		const numBones = StringUtils.readInteger(fullText.substring(node.valueLength));
+		node.updateExport(numBones);
+		// Remove the white spaces and the separator characters that might be present.
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		// read the bone indices
+		for (let i = 0; i < numBones.nodeData; i++) {
+			const boneIndex = StringUtils.readInteger(fullText.substring(node.valueLength));
+			node.updateExport(boneIndex);
+			const boneWeight = new Types.BoneWeight();
+			boneWeight.boneIndex = boneIndex.nodeData;
+			bone.boneWeights.push(boneWeight);
+			// Remove the white spaces and the separator characters that might be present.
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+			node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		}
+		// read the vertex weights
+		for (let i = 0; i < numBones.nodeData; i++) {
+			const vertexWeight = StringUtils.readFloat(fullText.substring(node.valueLength));
+			node.updateExport(vertexWeight);
+			bone.boneWeights[i].weight = vertexWeight.nodeData;
+			// Remove the white spaces and the separator characters that might be present.
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+			node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		}
+		// The next 16 floats are the bone offset matrix
+		for (let i = 0; i < 16; i++) {
+			const matrixValue = StringUtils.readFloat(fullText.substring(node.valueLength));
+			node.updateExport(matrixValue);
+			bone.offsetMatrix.push(matrixValue.nodeData);
+			// Remove the separator character.
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		}
+		// After the offset matrix, there is a semicolon.
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		// Remove the whitespaces.
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		// The next token should be the closing brace
+		let nextToken = StringUtils.getNextToken(fullText.substring(node.valueLength));
+		node.updateExport(nextToken);
+		if (nextToken.nodeData != '}') {
+			throw 'Unexpected token while parsing mesh skin weights node: ' + nextToken.nodeData;
+		}
+		// Update the mesh with the bone
+		node.nodeData.bones.push(bone);
+		return node;
+	},
 }
