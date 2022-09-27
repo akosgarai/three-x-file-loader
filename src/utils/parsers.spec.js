@@ -648,7 +648,7 @@ describe('Parsers', () => {
 			} );
 		} );
 	});
-	describe('meshMaterialListParser', () => {
+	describe('MeshMaterialListNode', () => {
 		const testData = [
 			{
 				fullText: '{\n2;\n12;\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n0,\n1,\n1,\n1,\n1;;\n{RedMaterial}\n{GreenMaterial}\n}',
@@ -879,13 +879,13 @@ describe('Parsers', () => {
 		];
 		test('General test', () => {
 			testData.forEach(({fullText, mesh, expected}) => {
-				const result = Parsers.meshMaterialListParser(fullText, mesh);
+				const result = Parsers.MeshMaterialListNode(fullText, mesh);
 				expect(result.valueLength).toEqual(expected.valueLength);
 				expect(result.lines).toEqual(expected.lines);
 				expect(result.nodeData).toEqual(expected.mesh);
 			} );
 			wrongData.forEach(({fullText, mesh, exception}) => {
-				expect(() => Parsers.meshMaterialListParser(fullText, mesh)).toThrow(exception);
+				expect(() => Parsers.MeshMaterialListNode(fullText, mesh)).toThrow(exception);
 			} );
 		} );
 	});

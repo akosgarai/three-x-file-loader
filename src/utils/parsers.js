@@ -307,8 +307,8 @@ module.exports = {
 		}
 		return node;
 	},
-	// MeshMaterialListParser based on the assimp implementation: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L596-L652
-	meshMaterialListParser(fullText, mesh) {
+	// MeshMaterialListNode based on the assimp implementation: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L596-L652
+	MeshMaterialListNode(fullText, mesh) {
 		let node = new Types.ExportedNode(mesh);
 		let head = this.headOfDataObject(fullText);
 		node.updateExport(head);
@@ -479,6 +479,91 @@ module.exports = {
 		}
 		// Update the mesh with the bone
 		node.nodeData.bones.push(bone);
+		return node;
+	},
+	// Mesh Node parser based on the assimp implementation: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L389-L445
+	meshNode(fullText) {
+		const meshName = this.headOfDataObject();
+		const mesh = new THREE.Mesh();
+		mesh.name = meshName;
+		let node = new Types.ExportedNode(null);
+		node.updateExport(meshName);
+		// Read the vertex count
+		const vertexCount = StringUtils.readInteger(fullText.substring(node.valueLength));
+		node.updateExport(vertexCount);
+		// read vertexCount.nodeData vertices into an array with the StringUtils.readVector3 function
+		for (let i = 0; i < vertexCount.nodeData; i++) {
+			const vertex = StringUtils.readVector3(fullText.substring(node.valueLength));
+			node.updateExport(vertex);
+			mesh.vertices.push(vertex.nodeData);
+			// After the vector3, there is a semicolon.
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+			// Remove the whitespaces.
+			node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		}
+		// read the number of faces to a variable with the StringUtils.readInteger function
+		const faceCount = StringUtils.readInteger(fullText.substring(node.valueLength));
+		node.updateExport(faceCount);
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		for (let i = 0; i < faceCount.nodeData; i++) {
+			const face = Types.Face();
+			const numIndices = StringUtils.readInteger(fullText.substring(node.valueLength));
+			node.updateExport(numIndices);
+			// the number is followed by a colon
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+			// read the indices
+			for (let j = 0; j < numIndices.nodeData; j++) {
+				const index = StringUtils.readInteger(fullText.substring(node.valueLength));
+				node.updateExport(index);
+				face.indices.push(index.nodeData);
+				// Remove the separator character.
+				node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+			}
+			mesh.vertexFaces.push(face);
+			// Remove the separator character, go to next character.
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+			node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		}
+		// read following data objects
+		while (true) {
+			let nextToken = StringUtils.getNextToken(fullText.substring(node.valueLength));
+			node.updateExport(nextToken);
+			if (nextToken.nodeData == '') {
+				throw 'Unexpected end of file while parsing mesh material list';
+			} else if (nextToken.nodeData == '}') {
+				break;
+			} else if (nextToken.nodeData == 'MeshNormals') {
+				const meshNormals = this.meshNormalNode(fullText.substring(node.valueLength), mesh);
+				node.updateExport(meshNormals);
+				mesh = meshNormals.nodeData;
+			} else if (nextToken.nodeData == 'MeshTextureCoords') {
+				const meshTextureCoords = this.meshTextureCoordsNode(fullText.substring(node.valueLength), mesh);
+				node.updateExport(meshTextureCoords);
+				mesh = meshTextureCoords.nodeData;
+			} else if (nextToken.nodeData == 'MeshVertexColors') {
+				const meshVertexColors = this.meshVertexColorsNode(fullText.substring(node.valueLength), mesh);
+				node.updateExport(meshVertexColors);
+				mesh = meshVertexColors.nodeData;
+			} else if (nextToken.nodeData == 'MeshMaterialList') {
+				const meshMaterialList = this.meshMaterialListNode(fullText.substring(node.valueLength), mesh);
+				node.updateExport(meshMaterialList);
+				mesh = meshMaterialList.nodeData;
+			} else if (nextToken.nodeData == 'VertexDuplicationIndices') {
+				// It is ignored by assimp, so we will ignore it too.
+				node.updateExport(this.unknownNode(fullText.substring(node.valueLength)));
+			} else if (nextToken.nodeData == 'XSkinMeshHeader') {
+				// It is ignored by assimp, so we will ignore it too.
+				node.updateExport(this.unknownNode(fullText.substring(node.valueLength)));
+			} else if (nextToken.nodeData == 'SkinWeights') {
+				const skinWeights = this.skinWeightsNode(fullText.substring(node.valueLength), mesh);
+				node.updateExport(skinWeights);
+				mesh = skinWeights.nodeData;
+			} else {
+				node.updateExport(this.unknownNode(fullText.substring(node.valueLength)));
+			}
+		}
+		node.nodeData = mesh;
 		return node;
 	},
 }
