@@ -169,4 +169,38 @@ describe('Types', () => {
 			expect(mesh.bones.length).toBe(0);
 		});
 	});
+	describe('TimedArray', () => {
+		const testData = [ 3, 4, 16 ];
+		test('constructor', () => {
+			testData.forEach((data) => {
+				const ta = new Types.TimedArray(data);
+				expect(ta.dataLength).toBe(data);
+				expect(ta.data).toBeInstanceOf(Array);
+				expect(ta.data.length).toBe(0);
+				expect(ta.time).toBe(null);
+			} );
+		});
+	});
+	describe('AnimBone', () => {
+		test('constructor', () => {
+			const ab = new Types.AnimBone();
+			expect(ab.name).toBe('');
+			expect(ab.positionKeys).toBeInstanceOf(Array);
+			expect(ab.positionKeys.length).toBe(0);
+			expect(ab.rotationKeys).toBeInstanceOf(Array);
+			expect(ab.rotationKeys.length).toBe(0);
+			expect(ab.scaleKeys).toBeInstanceOf(Array);
+			expect(ab.scaleKeys.length).toBe(0);
+			expect(ab.matrixKeys).toBeInstanceOf(Array);
+			expect(ab.matrixKeys.length).toBe(0);
+		});
+	});
+	describe('Animation', () => {
+		test('constructor', () => {
+			const anim = new Types.Animation();
+			expect(anim.name).toBe('');
+			expect(anim.boneAnimations).toBeInstanceOf(Array);
+			expect(anim.boneAnimations.length).toBe(0);
+		});
+	});
 });

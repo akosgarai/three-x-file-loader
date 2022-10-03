@@ -106,7 +106,38 @@ class Mesh {
 		this.bones = [];	//mBones
 	}
 };
+// https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileHelper.h#L177-L180
+// Possible to use for quaternions also.
+class TimedArray {
+	constructor(length) {
+		this.dataLength = length;
+		this.time = null;
+		this.data = [];
+	}
+};
+// https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileHelper.h#L182-L189
+// either three separate key sequences for position, rotation, scaling
+// or a combined key sequence of transformation matrices.
+class AnimBone {
+	constructor() {
+		this.name = '';	//mBoneName
+		this.positionKeys = [];	//mPosKeys
+		this.rotationKeys = [];	//mRotKeys
+		this.scaleKeys = [];	//mScaleKeys
+		this.matrixKeys = [];	//mTrafoKeys
+	}
+};
+// https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileHelper.h#L192-L200
+class Animation {
+	constructor() {
+		this.name = '';	//mName
+		// array of AnimBones.
+		this.boneAnimations = [];	//mAnims
+	}
+};
 module.exports = {
+	AnimBone,
+	Animation,
 	Bone,
 	BoneWeight,
 	Color,
@@ -115,6 +146,7 @@ module.exports = {
 	Material,
 	Mesh,
 	Scene,
+	TimedArray,
 	Vector2,
 	Vector3,
 };
