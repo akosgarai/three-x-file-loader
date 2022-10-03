@@ -794,4 +794,43 @@ module.exports = {
 		node.nodeData = animation;
 		return node;
 	},
+	frameNode(fullText, parentFrame) {
+		const node = new Types.ExportedNode(parentFrame);
+		const head = this.headOfDataObject(fullText);
+		node.updateExport(head);
+		let frame = new Types.Node(parentFrame);
+		frame.name = head.nodeData;
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		while (true) {
+			let nextToken = StringUtils.getNextToken(fullText.substring(node.valueLength));
+			node.updateExport(nextToken);
+			if (nextToken.nodeData == '') {
+				throw 'Unexpected end of file while parsing frame node';
+			}
+			if (nextToken.nodeData == '}') {
+				break;
+			} else if (nextToken.nodeData == 'Frame') {
+				const frameNode = this.frameNode(fullText.substring(node.valueLength), frame);
+				node.updateExport(frameNode);
+				frame = frameNode.nodeData;
+			} else if (nextToken.nodeData == 'FrameTransformMatrix') {
+				const transformMatrix = this.transformationMatrixNode(fullText.substring(node.valueLength));
+				node.updateExport(transformMatrix);
+				frame.transformation = transformMatrix.nodeData;
+			} else if (nextToken.nodeData == 'Mesh') {
+				const meshNode = this.meshNode(fullText.substring(node.valueLength));
+				node.updateExport(meshNode);
+				frame.meshes.push(meshNode.nodeData);
+			} else {
+				node.updateExport(this.unknownNode(fullText.substring(node.valueLength)));
+			}
+			node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		}
+		if (node.nodeData != null) {
+			node.nodeData.addChildren(frame);
+		} else {
+			node.nodeData = frame;
+		}
+		return node;
+	}
 }

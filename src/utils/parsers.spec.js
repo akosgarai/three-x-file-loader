@@ -1524,4 +1524,98 @@ describe('Parsers', () => {
 			} );
 		});
 	});
+	describe('frameNode', () => {
+		const testData = [
+			{
+				fullText:'Frame_SCENE_ROOT {\n FrameTransformMatrix {\n  1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;\n }\n}',
+				parent: null,
+				expected: {
+					valueLength: 'Frame_SCENE_ROOT {\n FrameTransformMatrix {\n  1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;\n }\n}'.length,
+					lines: 4,
+					frame: function() {
+						const frame = new Types.Node(null);
+						frame.name = 'Frame_SCENE_ROOT';
+						frame.transformation = [1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000];
+						return frame;
+					}(),
+				},
+			},
+			{
+				fullText:'Frame_SCENE_ROOT {\n FrameTransformMatrix {\n  1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;\n }\n Frame Frame_OTHER_ROOT {\n FrameTransformMatrix {\n  1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;\n }\n}}',
+				parent: null,
+				expected: {
+					valueLength: 'Frame_SCENE_ROOT {\n FrameTransformMatrix {\n  1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;\n }\n Frame Frame_OTHER_ROOT {\n FrameTransformMatrix {\n  1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;\n }\n}}'.length,
+					lines: 8,
+					frame: function() {
+						const frame = new Types.Node(null);
+						frame.name = 'Frame_SCENE_ROOT';
+						frame.transformation = [1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000];
+						const frame2 = new Types.Node(frame);
+						frame2.name = 'Frame_OTHER_ROOT';
+						frame2.transformation = [1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000];
+						frame.childrenNodes = [frame2];
+						return frame;
+					}(),
+				},
+			},
+			{
+				fullText:'Frame_SCENE_ROOT {\n FrameTransformMatrix {\n  1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;\n }\n Mesh MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\n}\n}',
+				parent: null,
+				expected: {
+					valueLength: 'Frame_SCENE_ROOT {\n FrameTransformMatrix {\n  1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;\n }\n Mesh MyMeshName {\n3;\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;,\n1.000000;0.000000;0.000000;;\n2;\n3;0,1,2;;\n3;0,1,2;;\n}\n}'.length,
+					lines: 13,
+					frame: function() {
+						const mesh = new Types.Mesh();
+						mesh.name = 'MyMeshName';
+						mesh.vertices = [
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+							new Types.Vector3(1.000000, 0.000000, 0.000000),
+						];
+						const face1 = new Types.Face();
+						face1.indices = [0, 1, 2];
+						const face2 = new Types.Face();
+						face2.indices = [0, 1, 2];
+						mesh.vertexFaces = [face1, face2];
+						const frame = new Types.Node(null);
+						frame.name = 'Frame_SCENE_ROOT';
+						frame.transformation = [1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000];
+						frame.meshes = [mesh];
+						return frame;
+					}(),
+				},
+			},
+			{
+				fullText:'Frame_SCENE_ROOT {\n FrameTransformMatrix {\n  1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;\n }\n WhateverNode {\nWhatever is here is will be skipped.}\n}',
+				parent: null,
+				expected: {
+					valueLength: 'Frame_SCENE_ROOT {\n FrameTransformMatrix {\n  1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;\n }\n WhateverNode {\nWhatever is here is will be skipped.}\n}'.length,
+					lines: 6,
+					frame: function() {
+						const frame = new Types.Node(null);
+						frame.name = 'Frame_SCENE_ROOT';
+						frame.transformation = [1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000];
+						return frame;
+					}(),
+				},
+			},
+		];
+		const wrongData = [
+			{
+				fullText:'Frame_SCENE_ROOT {\n FrameTransformMatrix {\n  1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;\n }\n',
+				exception: 'Unexpected end of file while parsing frame node',
+			},
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, parent, expected}) => {
+				const result = Parsers.frameNode(fullText, parent);
+				expect(result.valueLength).toEqual(expected.valueLength);
+				expect(result.lines).toEqual(expected.lines);
+				expect(result.nodeData).toEqual(expected.frame);
+			} );
+			wrongData.forEach(({fullText, exception}) => {
+				expect(() => Parsers.frameNode(fullText)).toThrow(exception);
+			} );
+		});
+	});
 });
