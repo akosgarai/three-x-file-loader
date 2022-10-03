@@ -1465,4 +1465,63 @@ describe('Parsers', () => {
 			} );
 		});
 	});
+	describe('animationSetNode', () => {
+		const testData = [
+			{
+				fullText: 'AnimationSet_0 {\nAnimation Animation0 {\n{ Animation0_Name }\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}\n}',
+				expected: {
+					valueLength: 'AnimationSet_0 {\nAnimation Animation0 {\n{ Animation0_Name }\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}\n}'.length,
+					lines: 8,
+					animation: function() {
+						const ta = new Types.TimedArray(3);
+						ta.time = 0;
+						ta.data = [1.000000,0.000000,0.000000];
+						const ba = new Types.AnimBone();
+						ba.positionKeys = [ta];
+						ba.name = 'Animation0_Name';
+						const anim = new Types.Animation();
+						anim.name = 'AnimationSet_0';
+						anim.boneAnimations = [ba];
+						return anim;
+					}(),
+				},
+			},
+			{
+				fullText: 'AnimationSet_1 {\nAnimation Animation1 {\n{ Animation1_Name }\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}',
+				expected: {
+					valueLength: 'AnimationSet_1 {\nAnimation Animation1 {\n{ Animation1_Name }\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}'.length,
+					lines: 12,
+					animation: function() {
+						const ta = new Types.TimedArray(3);
+						ta.time = 0;
+						ta.data = [1.000000,0.000000,0.000000];
+						const ba = new Types.AnimBone();
+						ba.positionKeys = [ta];
+						ba.name = 'Animation1_Name';
+						const anim = new Types.Animation();
+						anim.name = 'AnimationSet_1';
+						anim.boneAnimations = [ba];
+						return anim;
+					}(),
+				},
+			},
+		];
+		const wrongData = [
+			{
+				fullText: 'AnimationSet_1 {\nAnimation Animation1 {\n{ Animation1_Name }\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n',
+				exception: 'Unexpected end of file while parsing animationSet node',
+			},
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, expected}) => {
+				const result = Parsers.animationSetNode(fullText);
+				expect(result.valueLength).toEqual(expected.valueLength);
+				expect(result.lines).toEqual(expected.lines);
+				expect(result.nodeData).toEqual(expected.animation);
+			} );
+			wrongData.forEach(({fullText, exception}) => {
+				expect(() => Parsers.animationSetNode(fullText)).toThrow(exception);
+			} );
+		});
+	});
 });

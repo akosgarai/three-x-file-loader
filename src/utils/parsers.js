@@ -767,5 +767,31 @@ module.exports = {
 		}
 		return node;
 	},
-	animationSetNode(fullText) {},
+	animationSetNode(fullText) {
+		const node = new Types.ExportedNode(null);
+		const head = this.headOfDataObject(fullText);
+		node.updateExport(head);
+		let animation = new Types.Animation();
+		animation.name = head.nodeData;
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		while (true) {
+			let nextToken = StringUtils.getNextToken(fullText.substring(node.valueLength));
+			node.updateExport(nextToken);
+			if (nextToken.nodeData == '') {
+				throw 'Unexpected end of file while parsing animationSet node';
+			} else if (nextToken.nodeData == '}') {
+				break;
+			} else if (nextToken.nodeData == 'Animation') {
+				const animationNode = this.animationNode(fullText.substring(node.valueLength), animation);
+				node.updateExport(animationNode);
+				animation = animationNode.nodeData;
+				node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+			} else {
+				node.updateExport(this.unknownNode(fullText.substring(node.valueLength)));
+			}
+			node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		}
+		node.nodeData = animation;
+		return node;
+	},
 }
