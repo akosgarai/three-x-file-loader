@@ -140,8 +140,6 @@ class Animation {
 };
 // https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileHelper.h#L146-L175
 class Node {
-
-
 	constructor(parentNode) {
 		this.name = '';
 		this.parentNode = null;
@@ -155,7 +153,7 @@ class Node {
 	}
 
 	_isNode(nodeCandidate) {
-		return typeof nodeCandidate === 'object' && nodeCandidate.constructor.name == 'Node';
+		return typeof nodeCandidate === 'object' && nodeCandidate !== null && nodeCandidate.constructor.name == 'Node';
 	}
 
 	addChildren(childNode) {

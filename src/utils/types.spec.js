@@ -248,7 +248,7 @@ describe('Types', () => {
 		});
 		describe('_isNode', () => {
 			test('General test', () => {
-				const notValidParents = ['', 12, {}, [], someClass];
+				const notValidParents = ['', 12, {}, [], someClass, null];
 				const n = new Types.Node();
 				notValidParents.forEach(parent => {
 					expect(n._isNode(parent)).toBe(false);
