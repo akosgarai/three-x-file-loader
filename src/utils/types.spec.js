@@ -117,6 +117,9 @@ describe('Types', () => {
 			expect(scene.materials.length).toBe(0);
 			expect(scene.meshes).toBeInstanceOf(Array);
 			expect(scene.meshes.length).toBe(0);
+			expect(scene.animations).toBeInstanceOf(Array);
+			expect(scene.animations.length).toBe(0);
+			expect(scene.animTicksPerSecond).toBe(0);
 		});
 	});
 	describe('Face', () => {

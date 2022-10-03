@@ -70,6 +70,8 @@ class Scene {
 	constructor() {
 		this.materials = [];
 		this.meshes = [];
+		this.animations = [];
+		this.animTicksPerSecond = 0;
 	}
 };
 // https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileHelper.h#L59-L62
