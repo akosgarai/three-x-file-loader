@@ -1266,4 +1266,124 @@ describe('Parsers', () => {
 			} );
 		});
 	});
+	describe('animationKeyNode', () => {
+		const testData = [
+			{
+				fullText: '{\n4;1;\n0;16;1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;,\n}',
+				expected: {
+					valueLength: '{\n4;1;\n0;16;1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;,\n}'.length,
+					lines: 3,
+					animation: function() {
+						const ba = new Types.AnimBone();
+						const ta = new Types.TimedArray(16);
+						ta.time = 0;
+						ta.data = [1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000];
+						ba.matrixKeys = [ta];
+						return ba;
+					}(),
+				},
+			},
+			{
+				fullText: '{\n3;1;\n0;16;1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;,\n}',
+				expected: {
+					valueLength: '{\n3;1;\n0;16;1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;,\n}'.length,
+					lines: 3,
+					animation: function() {
+						const ba = new Types.AnimBone();
+						const ta = new Types.TimedArray(16);
+						ta.time = 0;
+						ta.data = [1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000];
+						ba.matrixKeys = [ta];
+						return ba;
+					}(),
+				},
+			},
+			{
+				fullText: '{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}',
+				expected: {
+					valueLength: '{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}'.length,
+					lines: 3,
+					animation: function() {
+						const ba = new Types.AnimBone();
+						const ta = new Types.TimedArray(3);
+						ta.time = 0;
+						ta.data = [1.000000,0.000000,0.000000];
+						ba.positionKeys = [ta];
+						return ba;
+					}(),
+				},
+			},
+			{
+				fullText: '{\n1;1;\n0;3;1.000000,0.000000,0.000000;,\n}',
+				expected: {
+					valueLength: '{\n1;1;\n0;3;1.000000,0.000000,0.000000;,\n}'.length,
+					lines: 3,
+					animation: function() {
+						const ba = new Types.AnimBone();
+						const ta = new Types.TimedArray(3);
+						ta.time = 0;
+						ta.data = [1.000000,0.000000,0.000000];
+						ba.scaleKeys = [ta];
+						return ba;
+					}(),
+				},
+			},
+			{
+				fullText: '{\n0;1;\n0;4;1.000000,0.000000,0.000000,0.000000;,\n}',
+				expected: {
+					valueLength: '{\n0;1;\n0;4;1.000000,0.000000,0.000000,0.000000;,\n}'.length,
+					lines: 3,
+					animation: function() {
+						const ba = new Types.AnimBone();
+						const ta = new Types.TimedArray(4);
+						ta.time = 0;
+						ta.data = [1.000000,0.000000,0.000000,0.000000];
+						ba.rotationKeys = [ta];
+						return ba;
+					}(),
+				},
+			},
+		];
+		const wrongData = [
+			{
+				fullText: '{\n0;1;\n0;3;1.000000,0.000000,0.000000,0.000000;,\n}',
+				exception: 'Invalid number of arguments for quaternion key in animation',
+			},
+			{
+				fullText: '{\n1;1;\n0;2;1.000000,0.000000,0.000000;,\n}',
+				exception: 'Invalid number of arguments for scale vector in animation',
+			},
+			{
+				fullText: '{\n2;1;\n0;2;1.000000,0.000000,0.000000;,\n}',
+				exception: 'Invalid number of arguments for position vector in animation',
+			},
+			{
+				fullText: '{\n3;1;\n0;15;1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;,\n}',
+				exception: 'Invalid number of arguments for matrix in animation',
+			},
+			{
+				fullText: '{\n4;1;\n0;15;1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;,\n}',
+				exception: 'Invalid number of arguments for matrix in animation',
+			},
+			{
+				fullText: '{\n5;1;\n0;15;1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000,0.000000,0.000000,0.000000,0.000000,1.000000;;,\n}',
+				exception: 'Invalid animation type',
+			},
+			{
+				fullText: '{\n0;1;\n0;4;1.000000,0.000000,0.000000,0.000000;,\nWrong',
+				exception: 'Unexpected token while parsing animationKey node: Wrong',
+			},
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, expected}) => {
+				const result = Parsers.animationKeyNode(fullText, new Types.AnimBone());
+				expect(result.valueLength).toEqual(expected.valueLength);
+				expect(result.lines).toEqual(expected.lines);
+				expect(result.nodeData).toEqual(expected.animation);
+			} );
+			wrongData.forEach(({fullText, exception}) => {
+				expect(() => Parsers.animationKeyNode(fullText, new Types.AnimBone())).toThrow(exception);
+			} );
+		});
+	});
 });

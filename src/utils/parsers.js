@@ -612,4 +612,119 @@ module.exports = {
 		}
 		return node;
 	},
+	animationKeyNode(fullText, boneAnim) {
+		const node = new Types.ExportedNode(boneAnim);
+		const head = this.headOfDataObject(fullText);
+		node.updateExport(head);
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		const keyType = StringUtils.readInteger(fullText.substring(node.valueLength));
+		node.updateExport(keyType);
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		const numberOfKeys = StringUtils.readInteger(fullText.substring(node.valueLength));
+		node.updateExport(numberOfKeys);
+		node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+
+		for (let i = 0; i < numberOfKeys.nodeData; i++) {
+			const key = {};
+			const time = StringUtils.readInteger(fullText.substring(node.valueLength));
+			node.updateExport(time);
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+
+			const readCount = StringUtils.readInteger(fullText.substring(node.valueLength));
+			switch (keyType.nodeData) {
+				case 0:
+					// Rotation keys
+					// The rotation keys are stored as quaternions
+					const quaternion = new Types.TimedArray(4);
+					node.updateExport(readCount);
+					if (readCount.nodeData != 4) {
+						throw 'Invalid number of arguments for quaternion key in animation';
+					}
+					node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+					quaternion.time = time.nodeData;
+					for (let j = 0; j < readCount.nodeData; j++) {
+						const value = StringUtils.readFloat(fullText.substring(node.valueLength));
+						node.updateExport(value);
+						quaternion.data.push(value.nodeData);
+						node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+					}
+					// It might be followed by multiple separators (;,)
+					node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+					node.nodeData.rotationKeys.push(quaternion);
+					break;
+				case 1:
+					// scale vector keys
+					const scaleVector = new Types.TimedArray(3);
+					node.updateExport(readCount);
+					if (readCount.nodeData != 3) {
+						throw 'Invalid number of arguments for scale vector in animation';
+					}
+					node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+					scaleVector.time = time.nodeData;
+					for (let j = 0; j < readCount.nodeData; j++) {
+						const value = StringUtils.readFloat(fullText.substring(node.valueLength));
+						node.updateExport(value);
+						scaleVector.data.push(value.nodeData);
+						node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+					}
+					// It might be followed by multiple separators (;,)
+					node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+					node.nodeData.scaleKeys.push(scaleVector);
+					break;
+				case 2:
+					// position vector keys
+					const positionVector = new Types.TimedArray(3);
+					node.updateExport(readCount);
+					if (readCount.nodeData != 3) {
+						throw 'Invalid number of arguments for position vector in animation';
+					}
+					node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+					positionVector.time = time.nodeData;
+					for (let j = 0; j < readCount.nodeData; j++) {
+						const value = StringUtils.readFloat(fullText.substring(node.valueLength));
+						node.updateExport(value);
+						positionVector.data.push(value.nodeData);
+						node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+					}
+					// It might be followed by multiple separators (;,)
+					node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+					node.nodeData.positionKeys.push(positionVector);
+					break;
+				case 3:
+				case 4:
+					const matrix = new Types.TimedArray(16);
+					node.updateExport(readCount);
+					if (readCount.nodeData != 16) {
+						throw 'Invalid number of arguments for matrix in animation';
+					}
+					node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+					matrix.time = time.nodeData;
+					for (let j = 0; j < readCount.nodeData; j++) {
+						const value = StringUtils.readFloat(fullText.substring(node.valueLength));
+						node.updateExport(value);
+						matrix.data.push(value.nodeData);
+						node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+					}
+					// It might be followed by multiple separators (;,)
+					node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+					node.nodeData.matrixKeys.push(matrix);
+					break;
+				default:
+					throw 'Invalid animation type';
+			}
+			node.updateExport(StringUtils.testForSeparator(fullText.substring(node.valueLength)));
+			node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		}
+		// The next token should be the closing brace
+		const nextToken = StringUtils.getNextToken(fullText.substring(node.valueLength));
+		node.updateExport(nextToken);
+		if (nextToken.nodeData != '}') {
+			throw 'Unexpected token while parsing animationKey node: ' + nextToken.nodeData;
+		}
+		return node;
+	},
+	animationSetNode(fullText) {},
+	animationNode(fullText, animation) {},
 }
