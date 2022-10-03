@@ -115,6 +115,7 @@ describe('Types', () => {
 	describe('Scene', () => {
 		test('constructor', () => {
 			const scene = new Types.Scene();
+			expect(scene.rootNode).toBe(null);
 			expect(scene.materials).toBeInstanceOf(Array);
 			expect(scene.materials.length).toBe(0);
 			expect(scene.meshes).toBeInstanceOf(Array);

@@ -68,6 +68,7 @@ class Material {
 };
 class Scene {
 	constructor() {
+		this.rootNode = null;
 		this.materials = [];
 		this.meshes = [];
 		this.animations = [];
