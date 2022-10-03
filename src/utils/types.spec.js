@@ -216,6 +216,10 @@ describe('Types', () => {
 				expect(n.name).toBe('');
 				expect(n.parentNode).toBe(null);
 				expect(n.childrenNodes).toStrictEqual([]);
+				expect(n.meshes).toBeInstanceOf(Array);
+				expect(n.meshes.length).toBe(0);
+				expect(n.transformation).toBeInstanceOf(Array);
+				expect(n.transformation.length).toBe(0);
 			});
 			test('Data with not relevant parent', () => {
 				const parentCandidates = ['', 12, {}, [], someClass];
@@ -224,6 +228,10 @@ describe('Types', () => {
 					expect(n.name).toBe('');
 					expect(n.parentNode).toBe(null);
 					expect(n.childrenNodes).toStrictEqual([]);
+					expect(n.meshes).toBeInstanceOf(Array);
+					expect(n.meshes.length).toBe(0);
+					expect(n.transformation).toBeInstanceOf(Array);
+					expect(n.transformation.length).toBe(0);
 				});
 			});
 			test('Data with a Node parent', () => {
@@ -232,6 +240,10 @@ describe('Types', () => {
 				expect(n.name).toBe('');
 				expect(n.parentNode).toBe(parent);
 				expect(n.childrenNodes).toStrictEqual([]);
+				expect(n.meshes).toBeInstanceOf(Array);
+				expect(n.meshes.length).toBe(0);
+				expect(n.transformation).toBeInstanceOf(Array);
+				expect(n.transformation.length).toBe(0);
 			});
 		});
 		describe('_isNode', () => {

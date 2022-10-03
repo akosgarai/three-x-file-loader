@@ -138,16 +138,16 @@ class Animation {
 		this.boneAnimations = [];	//mAnims
 	}
 };
+// https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileHelper.h#L146-L175
 class Node {
 
-	name;
-	parentNode;
-	childrenNodes;
 
 	constructor(parentNode) {
 		this.name = '';
 		this.parentNode = null;
 		this.childrenNodes = [];
+		this.meshes = [];
+		this.transformation = [];	//mTrafoMatrix
 
 		if (this._isNode(parentNode)) {
 			this.parentNode = parentNode;
