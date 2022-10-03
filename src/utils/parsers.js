@@ -725,6 +725,47 @@ module.exports = {
 		}
 		return node;
 	},
+	animationNode(fullText, animation) {
+		const node = new Types.ExportedNode(animation);
+		const head = this.headOfDataObject(fullText);
+		node.updateExport(head);
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		const boneAnimation = new Types.AnimBone();
+		node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		while (true) {
+			let nextToken = StringUtils.getNextToken(fullText.substring(node.valueLength));
+			node.updateExport(nextToken);
+			if (nextToken.nodeData == '') {
+				throw 'Unexpected end of file while parsing animation node';
+			} else if (nextToken.nodeData == '}') {
+				break;
+			} else if (nextToken.nodeData == 'AnimationKey') {
+				const animationKey = this.animationKeyNode(fullText.substring(node.valueLength), boneAnimation);
+				node.updateExport(animationKey);
+				node.nodeData.boneAnimations.push(animationKey.nodeData);
+				node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+			} else if (nextToken.nodeData == 'AnimationOptions') {
+				// It is ignored by assimp, so we will ignore it too.
+				node.updateExport(this.unknownNode(fullText.substring(node.valueLength)));
+			} else if (nextToken.nodeData == '{') {
+				node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+				const animName = StringUtils.getNextToken(fullText.substring(node.valueLength));
+				node.updateExport(animName);
+				boneAnimation.name = animName.nodeData;
+				node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+				// The next token should be the closing brace
+				const nameCloseBrace = StringUtils.getNextToken(fullText.substring(node.valueLength));
+				node.updateExport(nameCloseBrace);
+				if (nameCloseBrace.nodeData != '}') {
+					throw 'Unexpected token while parsing animation node: ' + nameCloseBrace.nodeData;
+				}
+				node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+			} else {
+				node.updateExport(this.unknownNode(fullText.substring(node.valueLength)));
+			}
+			node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
+		}
+		return node;
+	},
 	animationSetNode(fullText) {},
-	animationNode(fullText, animation) {},
 }

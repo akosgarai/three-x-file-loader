@@ -1386,4 +1386,83 @@ describe('Parsers', () => {
 			} );
 		});
 	});
+	describe('animationNode', () => {
+		const testData = [
+			{
+				fullText: 'Animation1 {\n{ Animation1_Name }\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}',
+				expected: {
+					valueLength: 'Animation1 {\n{ Animation1_Name }\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}'.length,
+					lines: 6,
+					animation: function() {
+						const ta = new Types.TimedArray(3);
+						ta.time = 0;
+						ta.data = [1.000000,0.000000,0.000000];
+						const ba = new Types.AnimBone();
+						ba.positionKeys = [ta];
+						ba.name = 'Animation1_Name';
+						const anim = new Types.Animation();
+						anim.boneAnimations = [ba];
+						return anim;
+					}(),
+				},
+			},
+			{
+				fullText: 'Animation2 {\n{ Animation2_Name }\nAnimationOptions{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}',
+				expected: {
+					valueLength: 'Animation2 {\n{ Animation2_Name }\nAnimationOptions{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}'.length,
+					lines: 10,
+					animation: function() {
+						const ta = new Types.TimedArray(3);
+						ta.time = 0;
+						ta.data = [1.000000,0.000000,0.000000];
+						const ba = new Types.AnimBone();
+						ba.positionKeys = [ta];
+						ba.name = 'Animation2_Name';
+						const anim = new Types.Animation();
+						anim.boneAnimations = [ba];
+						return anim;
+					}(),
+				},
+			},
+			{
+				fullText: 'Animation3 {\n{ Animation3_Name }\nAnimationOptionsCustom{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}',
+				expected: {
+					valueLength: 'Animation3 {\n{ Animation3_Name }\nAnimationOptionsCustom{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}'.length,
+					lines: 10,
+					animation: function() {
+						const ta = new Types.TimedArray(3);
+						ta.time = 0;
+						ta.data = [1.000000,0.000000,0.000000];
+						const ba = new Types.AnimBone();
+						ba.positionKeys = [ta];
+						ba.name = 'Animation3_Name';
+						const anim = new Types.Animation();
+						anim.boneAnimations = [ba];
+						return anim;
+					}(),
+				},
+			},
+		];
+		const wrongData = [
+			{
+				fullText: 'Animation1 {\n{ Animation1_Name }\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}',
+				exception: 'Unexpected end of file while parsing animation node',
+			},
+			{
+				fullText: 'Animation1 {\n{ Animation1_Name Other }\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}',
+				exception: 'Unexpected token while parsing animation node: Other',
+			},
+		];
+		test('General test', () => {
+			testData.forEach(({fullText, expected}) => {
+				const result = Parsers.animationNode(fullText, new Types.Animation());
+				expect(result.valueLength).toEqual(expected.valueLength);
+				expect(result.lines).toEqual(expected.lines);
+				expect(result.nodeData).toEqual(expected.animation);
+			} );
+			wrongData.forEach(({fullText, exception}) => {
+				expect(() => Parsers.animationNode(fullText, new Types.Animation())).toThrow(exception);
+			} );
+		});
+	});
 });
