@@ -43,6 +43,7 @@ module.exports = class TextParser {
 			this.readUntil += skipped.valueLength;
 			this.lineNumber += skipped.lines;
 		}
+		this._filterHierarchy(this.exportScene.rootNode);
 		return this.exportScene;
 	}
 
@@ -136,5 +137,27 @@ module.exports = class TextParser {
 		const unknown = Parsers.unknownNode(this.fileContent.substring(this.readUntil));
 		this.readUntil += unknown.valueLength;
 		this.lineNumber += unknown.lines;
+	}
+	// Filters the imported hierarchy for some degenerated cases that some exporters produce.
+	// if the node has just a single unnamed child containing a mesh, remove
+	// the anonymous node between. The 3DSMax kwXport plugin seems to produce this
+	// mess in some cases
+	_filterHierarchy(parentNode) {
+		if (parentNode.childrenNodes.length == 1 && parentNode.meshes.length == 0) {
+			const childNode = parentNode.childrenNodes[0];
+			if (childNode.name == '' && childNode.meshes.length > 0) {
+				// transfer its meshes to the parent node
+				for (let i = 0; i < childNode.meshes.length; i++) {
+					parentNode.meshes.push(childNode.meshes[i]);
+				}
+				// transfer the transformations as well.
+				// pNode->mTrafoMatrix = pNode->mTrafoMatrix * child->mTrafoMatrix;
+				parentNode.childrenNodes = [];
+			}
+		}
+		// recurse for all children
+		for (let i = 0; i < parentNode.childrenNodes.length; i++) {
+			this._filterHierarchy(parentNode.childrenNodes[i]);
+		}
 	}
 }
