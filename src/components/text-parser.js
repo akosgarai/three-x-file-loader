@@ -12,12 +12,8 @@ module.exports = class TextParser {
 	lineNumber;
 	// It stores the Scene data.
 	exportScene;
-	// textureBaseDir is the main part of the current url.
-	textureBaseDir;
-	// The texture loader THREE.textureLoader;
-	texLoader;
 
-	constructor(text, textureBaseDir, texLoader) {
+	constructor(text) {
 		this.fileContent = text;
 		this.readUntil = 0;
 		this.lineNumber = 0;
@@ -26,8 +22,6 @@ module.exports = class TextParser {
 		this.lineNumber++;
 
 		this.exportScene = new Types.Scene();
-		this.textureBaseDir = textureBaseDir;
-		this.texLoader = texLoader;
 	}
 
 	parse() {
