@@ -146,6 +146,16 @@ module.exports = class TextParser {
 				}
 				// transfer the transformations as well.
 				// pNode->mTrafoMatrix = pNode->mTrafoMatrix * child->mTrafoMatrix;
+				let multipliedMatrix = [];
+				for (let i = 0; i < 4; i++) {
+					for (let j = 0; j < 4; j++) {
+						multipliedMatrix[i * 4 + j] = 0;
+						for (let k = 0; k < 4; k++) {
+							multipliedMatrix[i * 4 + j] += parentNode.trafoMatrix[i * 4 + k] * childNode.trafoMatrix[k * 4 + j];
+						}
+					}
+				}
+				parentNode.trafoMatrix = multipliedMatrix;
 				parentNode.childrenNodes = [];
 			}
 		}
