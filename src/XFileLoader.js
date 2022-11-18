@@ -1,4 +1,7 @@
-export default class XFileLoader {
+const HeaderLineParser = require('./header-line-parser');
+const TextParser = require('./components/text-parser');
+
+module.exports = class XFileLoader {
 
 	constructor ( manager, texloader ) {
 		this.manager = ( manager !== undefined ) ? manager : new THREE.DefaultLoadingManager();
@@ -6,8 +9,7 @@ export default class XFileLoader {
 
 		this._fileLoaderUrl = '';
 		this._options = {};
-		this._fileBinary = false;
-		this._fileCompressed = false;
+		this._headerInfo = null;
 	}
 
 	_setArgOption( _arg) {
@@ -17,7 +19,7 @@ export default class XFileLoader {
 		if (_arg[0]) {
 			this._fileLoaderUrl = _arg[0];
 		}
-		if (_arg[0]) {
+		if (_arg[1]) {
 			this.options = _arg[1];
 		}
 	}
@@ -33,46 +35,15 @@ export default class XFileLoader {
 	}
 
 	_parse( data, onLoad ) {
-		this._parseHeaderLine(data);
+		const lines = data.split(/\r?\n/);
+		const firstLine = lines[0];
+		this._headerInfo = new HeaderLineParser(firstLine);
 		this.onLoad = onLoad;
-		//const binData = this.ensureBinary( data );
-		//this._data = this.ensureString( data );
-		if (!this._fileCompressed && !this._fileBinary) {
-			return this._fileParseAscii();
+		if (!this._headerInfo._fileCompressed && !this._headerInfo._fileBinary) {
+			const parser = new TextParser(lines.slice(1).join('\n'));
+			const exportScene = parser.parse();
+			console.log(exportScene);
 		}
 		throw 'Unsupported file format.'
-	}
-
-	/*
-	 * Format example: 'xof 0303txt 0032'
-	 **/
-	_parseHeaderLine(response) {
-		const firstLine = (response.split(/\r?\n/))[0];
-		if (!firstLine.startsWith('xof ')) {
-			throw 'Header mismatch, file is not an XFile.';
-		}
-		this._fileMajorVersion = firstLine[4] + '' + firstLine[5]
-		this._fileMinorVersion = firstLine[6] + '' + firstLine[7]
-		this._fileFormat = firstLine.substring(8, 12);
-		switch (this._fileFormat) {
-			case 'txt ':
-				this._fileCompressed = false;
-				this._fileBinary = false;
-				break;
-			case 'bin ':
-				this._fileCompressed = false;
-				this._fileBinary = true;
-				break;
-			case 'tzip':
-				this._fileCompressed = true;
-				this._fileBinary = false;
-				break;
-			case 'bzip':
-				this._fileCompressed = true;
-				this._fileBinary = true;
-				break;
-			default:
-				throw 'Unsupported x-file format: ' + this._fileFormat;
-		}
 	}
 }
