@@ -1,4 +1,4 @@
-const Types = require('./types');
+import Types from './types';
 
 module.exports = {
 	// https://en.cppreference.com/w/cpp/string/byte/isspace

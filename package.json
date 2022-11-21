@@ -4,7 +4,7 @@
   "description": "DirectX 3D file (X file) loader for three.js.",
   "main": "index.js",
   "scripts": {
-    "build": "rollup -c rollup.config.js",
+    "build": "rollup -c rollup.config.mjs",
     "test": "jest --verbose"
   },
   "keywords": [],

@@ -1,8 +1,8 @@
-const Parsers = require('../utils/parsers');
-const StringUtils = require('../utils/string');
-const Types = require('../utils/types');
+import Parsers from '../utils/parsers';
+import StringUtils from '../utils/string';
+import Types from '../utils/types';
 
-module.exports = class TextParser {
+export default class TextParser {
 
 	// It contains the text of the .X file
 	fileContent;

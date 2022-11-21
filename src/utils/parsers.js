@@ -1,5 +1,5 @@
-const StringUtils = require('./string');
-const Types = require('./types');
+import StringUtils from './string';
+import Types from './types';
 
 module.exports = {
 	// headOfDataObject parser function. Input is the full text of the rest of the model file.
