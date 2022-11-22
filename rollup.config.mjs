@@ -5,7 +5,7 @@ export default [
 		input: './src/XFileLoader.js',
 		output: {
 			file: './XFileLoader.js',
-			format: 'iife',
+			format: 'umd',
 			name: 'THREE.XFileLoader'
 		},
 		plugins: [
