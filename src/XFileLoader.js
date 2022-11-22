@@ -60,7 +60,14 @@ export default class XFileLoader {
 			const exportScene = parser.parse();
 			this._initCurrentAnimationAndMesh();
 			this._currentObject = exportScene.rootNode;
-			return this._exportLoop();
+			this._exportLoop();
+
+			setTimeout( () => {
+				this.onLoad( {
+					models: this.meshes,
+					animations: this.animations
+				} )
+			}, 1 );
 		}
 		throw 'Unsupported file format.'
 	}
@@ -112,7 +119,7 @@ export default class XFileLoader {
 				}
 				materials.push(mpMat);
 			});
-			mesh = new THREE.Mesh( geometry, materials.length === 1 ? materials[ 0 ] : materials );
+			const mesh = new THREE.Mesh( geometry, materials.length === 1 ? materials[ 0 ] : materials );
 			this.meshes.push(mesh);
 		}
 	}
