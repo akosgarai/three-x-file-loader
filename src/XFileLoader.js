@@ -1,7 +1,7 @@
 const HeaderLineParser = require('./header-line-parser');
 const TextParser = require('./components/text-parser');
 
-module.exports = class XFileLoader {
+export default class XFileLoader {
 
 	constructor ( manager, texloader ) {
 		this.manager = ( manager !== undefined ) ? manager : new THREE.DefaultLoadingManager();
