@@ -1,5 +1,5 @@
-import StringUtils from './string';
-import Types from './types';
+import * as StringUtils from './string.js';
+import * as Types from './types.js';
 
 describe('String Utils', () => {
 	describe('isSpace', () => {
