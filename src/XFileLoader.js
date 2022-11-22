@@ -1,5 +1,5 @@
-const HeaderLineParser = require('./header-line-parser');
-const TextParser = require('./components/text-parser');
+import { HeaderLineParser } from './components/header-line-parser.js';
+import { TextParser } from './components/text-parser.js';
 
 export default class XFileLoader {
 
@@ -35,6 +35,15 @@ export default class XFileLoader {
 	}
 
 	_parse( data, onLoad ) {
+		// make sure data is a string
+		if ( typeof data !== "string" ) {
+			const array_buffer = new Uint8Array( data );
+			let str = '';
+			for ( let i = 0; i < data.byteLength; i++ ) {
+				str += String.fromCharCode( array_buffer[ i ] ); // implicitly assumes little-endian
+			}
+			data = str;
+		}
 		const lines = data.split(/\r?\n/);
 		const firstLine = lines[0];
 		this._headerInfo = new HeaderLineParser(firstLine);
