@@ -68,8 +68,9 @@ export default class XFileLoader {
 					animations: this.animations
 				} )
 			}, 1 );
+		} else {
+			throw 'Unsupported file format.'
 		}
-		throw 'Unsupported file format.'
 	}
 	// _initCurrentAnimationAndMesh creates the output mesh or animation from the current objects
 	// and adds them to the output arrays. Then it resets the current animation and mesh.
