@@ -162,7 +162,7 @@ class Node {
 		}
 	}
 }
-module.exports = {
+export {
 	AnimBone,
 	Animation,
 	Bone,

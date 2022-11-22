@@ -1,4 +1,4 @@
-import Types from './types';
+import * as Types from './types';
 
 const someClass = class Whatever {};
 
