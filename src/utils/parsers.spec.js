@@ -1,5 +1,5 @@
-import Parsers from './parsers';
-import Types from './types';
+import * as Parsers from './parsers.js';
+import * as Types from './types.js';
 
 describe('Parsers', () => {
 	describe('headOfDataObject', () => {
