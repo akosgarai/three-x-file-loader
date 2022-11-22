@@ -1,8 +1,8 @@
-import Parsers from '../utils/parsers';
-import StringUtils from '../utils/string';
-import Types from '../utils/types';
+import * as Parsers from '../utils/parsers.js';
+import * as StringUtils from '../utils/string.js';
+import * as Types from '../utils/types.js';
 
-export default class TextParser {
+class TextParser {
 
 	// It contains the text of the .X file
 	fileContent;
@@ -165,3 +165,6 @@ export default class TextParser {
 		}
 	}
 }
+export {
+	TextParser,
+};

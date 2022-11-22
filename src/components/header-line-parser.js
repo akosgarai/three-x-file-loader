@@ -1,4 +1,4 @@
-module.exports = class HeaderLineParser {
+class HeaderLineParser {
 
 	constructor(line) {
 		this._parseHeaderLine(line);
@@ -39,3 +39,6 @@ module.exports = class HeaderLineParser {
 		}
 	}
 }
+export {
+	HeaderLineParser,
+};

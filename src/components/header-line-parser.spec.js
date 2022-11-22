@@ -1,4 +1,4 @@
-const HeaderLineParser = require('./header-line-parser');
+import { HeaderLineParser } from './header-line-parser.js';
 
 describe('Header Parser', () => {
 	describe('Validation', () => {
