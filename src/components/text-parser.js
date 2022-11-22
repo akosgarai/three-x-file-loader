@@ -32,7 +32,7 @@ class TextParser {
 			if (objectName.nodeData == '') {
 				break;
 			}
-			this._parseObjectBasedOnName(objectName);
+			this._parseObjectBasedOnName(objectName.nodeData);
 			const skipped = StringUtils.readUntilNextNonWhitespace(this.fileContent.substring(this.readUntil));
 			this.readUntil += skipped.valueLength;
 			this.lineNumber += skipped.lines;
@@ -76,8 +76,8 @@ class TextParser {
 	}
 	_parseFrameObject() {
 		const frame = Parsers.frameNode(this.fileContent.substring(this.readUntil));
-		this.readUntil += template.valueLength;
-		this.lineNumber += template.lines;
+		this.readUntil += frame.valueLength;
+		this.lineNumber += frame.lines;
 		if (this.exportScene.rootNode == null) {
 			this.exportScene.rootNode = frame.nodeData;
 		} else {
