@@ -130,6 +130,17 @@ export default class XFileLoader {
 				const frameTransformationMatrix = new THREE.Matrix4().fromArray(currentObject.transformation);
 				const bones = [];
 				this._makeBones(currentObject.parentNode, bones);
+				this._currentMesh.bones.forEach((bone) => {
+					console.log('bone', bone);
+					let boneIndex = 0;
+					for ( let bb = 0; bb < bones.length; bb++ ) {
+						if ( bones[ bb ].name === bone.name ) {
+							boneIndex = bb;
+							bones[ bb ].OffsetMatrix = new THREE.Matrix4().fromArray(bone.offsetMatrix);
+							break;
+						}
+					}
+				});
 				console.log('geometry', geometry);
 				console.log('bones', bones);
 			} else {
