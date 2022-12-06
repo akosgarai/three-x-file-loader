@@ -142,6 +142,14 @@ export default class XFileLoader {
 				// make bones from the current root node.
 				const frameTransformationMatrix = new THREE.Matrix4().fromArray(currentObject.transformation);
 				const bones = [];
+				let tempBoneCountData = [];
+				let tempBoneWeightData = [];
+				let tempBoneIndexData = [];
+				this._currentMesh.vertices.forEach((vertex) => {
+					tempBoneCountData.push(0);
+					tempBoneWeightData.push([0,0,0,0]);
+					tempBoneIndexData.push([1,0,0,0]);
+				});
 				this._makeBones(currentObject.parentNode, bones);
 				this._currentMesh.bones.forEach((bone) => {
 					let boneIndex = 0;
@@ -152,9 +160,18 @@ export default class XFileLoader {
 							break;
 						}
 					}
-					let tempBoneCountData = {};
+					bone.boneWeights.forEach((boneWeight) => {
+						const index = boneWeight.boneIndex;
+						const weight = boneWeight.weight;
+						tempBoneWeightData[index][tempBoneCountData[index]] = weight;
+						tempBoneIndexData[index][tempBoneCountData[index]] = boneIndex;
+						tempBoneCountData[index] += 1;
+					});
 				});
-				console.log('geometry', geometry);
+				const skinWeights = this._array4sToFloat32Array(tempBoneWeightData, indices);
+				geometry.setAttribute('skinWeight', new THREE.BufferAttribute(skinWeights, 4));
+				const skinIndices = this._array4sToFloat32Array(tempBoneIndexData, indices);
+				geometry.setAttribute('skinIndex', new THREE.BufferAttribute(skinIndices, 4));
 				materials.forEach((material) => {
 					material.skinning = true;
 				});
@@ -226,6 +243,17 @@ export default class XFileLoader {
 			//console.log('child', child);
 			this._processFrame(child);
 		});
+	}
+	_array4sToFloat32Array( vectors , indices ) {
+		const floatArray = [];
+		indices.forEach((index) => {
+			const vector = vectors[index];
+			floatArray.push(vector[0]);
+			floatArray.push(vector[1]);
+			floatArray.push(vector[2]);
+			floatArray.push(vector[3]);
+		});
+		return new Float32Array(floatArray);
 	}
 	_vector3sToFloat32Array( vectors , indices ) {
 		const floatArray = [];
