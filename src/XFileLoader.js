@@ -64,8 +64,10 @@ export default class XFileLoader {
 			this._currentObject = this._exportScene.rootNode;
 			console.log('exportScene', this._exportScene);
 			this._processFrame(this._currentObject);
+			console.log('Frame has been processed.', this.meshes);
 
 			setTimeout( () => {
+				console.log('Executing onload form fileloader.');
 				this.onLoad( {
 					models: this.meshes,
 					animations: this.animations
@@ -148,9 +150,26 @@ export default class XFileLoader {
 							break;
 						}
 					}
+					console.log('bone', bone, boneIndex);
+					let tempBoneCountData = {};
 				});
 				console.log('geometry', geometry);
 				console.log('bones', bones);
+				materials.forEach((material) => {
+					material.skinning = true;
+				});
+				const skinnedMesh = new THREE.SkinnedMesh( geometry, materials.length === 1 ? materials[ 0 ] : materials );
+				const offsetList = [];
+				bones.forEach((bone) => {
+					if (bone.OffsetMatrix) {
+						offsetList.push(bone.OffsetMatrix);
+					} else {
+						offsetList.push(new THREE.Matrix4());
+					}
+				});
+				const skeleton = new THREE.Skeleton(bones, offsetList);
+				skinnedMesh.bind(skeleton);
+				this.meshes.push(skinnedMesh);
 			} else {
 				const mesh = new THREE.Mesh( geometry, materials.length === 1 ? materials[ 0 ] : materials );
 				this.meshes.push(mesh);
