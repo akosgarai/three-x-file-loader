@@ -96,6 +96,14 @@ export default class XFileLoader {
 			// set vertices
 			const vertices = this._vector3sToFloat32Array(this._currentMesh.vertices, indices);
 			geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+			// set faces aka indices for normals
+			const indicesN = [];
+			this._currentMesh.normalFaces.forEach((face) => {
+				indicesN.push(face.indices[0], face.indices[1], face.indices[2]);
+			});
+			// set normals
+			const normals = this._vector3sToFloat32Array(this._currentMesh.normals, indicesN);
+			geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
 			//geometry.setIndex(indices);
 			// set materials
 			const materials = [];
