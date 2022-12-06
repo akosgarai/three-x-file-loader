@@ -107,6 +107,8 @@ export default class XFileLoader {
 			const normals = this._vector3sToFloat32Array(this._currentMesh.normals, indicesN);
 			geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
 			//geometry.setIndex(indices);
+			const uvs = this._vector2sToFloat32Array(this._currentMesh.texCoords, indices);
+			geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
 			// set materials
 			const materials = [];
 			this._currentMesh.materials.forEach((material) => {
@@ -150,11 +152,9 @@ export default class XFileLoader {
 							break;
 						}
 					}
-					console.log('bone', bone, boneIndex);
 					let tempBoneCountData = {};
 				});
 				console.log('geometry', geometry);
-				console.log('bones', bones);
 				materials.forEach((material) => {
 					material.skinning = true;
 				});
@@ -234,6 +234,15 @@ export default class XFileLoader {
 			floatArray.push(vector.x);
 			floatArray.push(vector.y);
 			floatArray.push(vector.z);
+		});
+		return new Float32Array(floatArray);
+	}
+	_vector2sToFloat32Array( vectors , indices ) {
+		const floatArray = [];
+		indices.forEach((index) => {
+			const vector = vectors[index];
+			floatArray.push(vector.x);
+			floatArray.push(1 - vector.y);
 		});
 		return new Float32Array(floatArray);
 	}
