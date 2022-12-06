@@ -225,7 +225,7 @@ export default class XFileLoader {
 		});
 	}
 	_makeOutputAnimation() {
-		if (this._currentAnimation) {
+		if (this._currentAnimation && Object.keys(this._currentAnimation).length > 0) {
 			this.animations.push(this._currentAnimation);
 		}
 	}
