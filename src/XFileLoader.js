@@ -87,15 +87,16 @@ export default class XFileLoader {
 		console.log('current output mesh', this._currentMesh, currentObject);
 		if (this._currentMesh && Object.keys(this._currentMesh).length > 0) {
 			const geometry = new THREE.BufferGeometry();
-			// set vertices
-			const vertices = this._vector3sToFloat32Array(this._currentMesh.vertices);
-			geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
 			// set faces aka indices
 			const indices = [];
 			this._currentMesh.vertexFaces.forEach((face) => {
-				indices.push(face[0], face[1], face[2]);
+				//console.log('face', face.indices, vertices[face.indices[0]], vertices[face.indices[1]], vertices[face.indices[2]]);
+				indices.push(face.indices[0], face.indices[1], face.indices[2]);
 			});
-			geometry.setIndex(indices);
+			// set vertices
+			const vertices = this._vector3sToFloat32Array(this._currentMesh.vertices, indices);
+			geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+			//geometry.setIndex(indices);
 			// set materials
 			const materials = [];
 			this._currentMesh.materials.forEach((material) => {
@@ -131,7 +132,6 @@ export default class XFileLoader {
 				const bones = [];
 				this._makeBones(currentObject.parentNode, bones);
 				this._currentMesh.bones.forEach((bone) => {
-					console.log('bone', bone);
 					let boneIndex = 0;
 					for ( let bb = 0; bb < bones.length; bb++ ) {
 						if ( bones[ bb ].name === bone.name ) {
@@ -176,9 +176,7 @@ export default class XFileLoader {
 			}
 		}
 		outputBones.push( b );
-		console.log('Frame finished ' + currentFrame.name, outputBones);
 		currentFrame.childrenNodes.forEach((child) => {
-			console.log('Make Bone Child ', child.name);
 			this._makeBones(child, outputBones);
 		});
 	}
@@ -202,9 +200,10 @@ export default class XFileLoader {
 			this._processFrame(child);
 		});
 	}
-	_vector3sToFloat32Array( vectors ) {
+	_vector3sToFloat32Array( vectors , indices ) {
 		const floatArray = [];
-		vectors.forEach((vector) => {
+		indices.forEach((index) => {
+			const vector = vectors[index];
 			floatArray.push(vector.x);
 			floatArray.push(vector.y);
 			floatArray.push(vector.z);
