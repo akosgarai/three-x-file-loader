@@ -17,6 +17,8 @@ export default class XFileLoader {
 		this._currentObject = {};
 		this._currentMesh = {};
 		this._currentAnimation = {};
+		// The exported scene is stored in this variable.
+		this._exportScene = {};
 	}
 
 	_setArgOption( _arg) {
@@ -57,10 +59,11 @@ export default class XFileLoader {
 		this.onLoad = onLoad;
 		if (!this._headerInfo._fileCompressed && !this._headerInfo._fileBinary) {
 			const parser = new TextParser(lines.slice(1).join('\n'));
-			const exportScene = parser.parse();
+			this._exportScene = parser.parse();
 			this._initCurrentAnimationAndMesh();
-			this._currentObject = exportScene.rootNode;
-			this._exportLoop();
+			this._currentObject = this._exportScene.rootNode;
+			console.log('exportScene', this._exportScene);
+			this._processFrame(this._currentObject);
 
 			setTimeout( () => {
 				this.onLoad( {
@@ -80,7 +83,8 @@ export default class XFileLoader {
 		this._makeOutputAnimation();
 		this._currentAnimation = {};
 	}
-	_makeOutputMesh() {
+	_makeOutputMesh(currentObject) {
+		console.log('current output mesh', this._currentMesh, currentObject);
 		if (this._currentMesh && Object.keys(this._currentMesh).length > 0) {
 			const geometry = new THREE.BufferGeometry();
 			// set vertices
@@ -120,23 +124,71 @@ export default class XFileLoader {
 				}
 				materials.push(mpMat);
 			});
-			const mesh = new THREE.Mesh( geometry, materials.length === 1 ? materials[ 0 ] : materials );
-			this.meshes.push(mesh);
+			if (this._currentMesh.bones.length > 0) {
+				// define the bones based on the xLoader solution.
+				// make bones from the current root node.
+				const frameTransformationMatrix = new THREE.Matrix4().fromArray(currentObject.transformation);
+				const bones = [];
+				this._makeBones(currentObject.parentNode, bones);
+				console.log('geometry', geometry);
+				console.log('bones', bones);
+			} else {
+				const mesh = new THREE.Mesh( geometry, materials.length === 1 ? materials[ 0 ] : materials );
+				this.meshes.push(mesh);
+			}
 		}
+	}
+	// It creates the bone hierarchy from the current object
+	_makeBones(currentFrame, outputBones) {
+		const frameTransformationMatrix = new THREE.Matrix4().fromArray(currentFrame.transformation);
+		const b = new THREE.Bone();
+		b.name = currentFrame.name;
+		b.applyMatrix4( frameTransformationMatrix );
+		b.matrixWorld = b.matrix;
+		b.FrameTransformMatrix = frameTransformationMatrix;
+		b.pos = new THREE.Vector3()
+			.setFromMatrixPosition( b.FrameTransformMatrix )
+			.toArray();
+		b.rotq = new THREE.Quaternion()
+			.setFromRotationMatrix( b.FrameTransformMatrix )
+			.toArray();
+		b.scl = new THREE.Vector3()
+			.setFromMatrixScale( b.FrameTransformMatrix )
+			.toArray();
+		if ( currentFrame.parentNode ) {
+			for ( let i = 0; i < outputBones.length; i++ ) {
+				if ( currentFrame.parentNode.name === outputBones[ i ].name ) {
+					outputBones[ i ].add( b );
+					b.parent = i;
+					break;
+				}
+			}
+		}
+		outputBones.push( b );
+		console.log('Frame finished ' + currentFrame.name, outputBones);
+		currentFrame.childrenNodes.forEach((child) => {
+			console.log('Make Bone Child ', child.name);
+			this._makeBones(child, outputBones);
+		});
 	}
 	_makeOutputAnimation() {
 		if (this._currentAnimation) {
 			this.animations.push(this._currentAnimation);
 		}
 	}
-	_exportLoop() {
-		this._currentObject.meshes.forEach((currentMesh) => {
+	_processFrame(currentObject) {
+		// Make bone from the current frame object.
+		this._boneFromCurrentObject(currentObject);
+		currentObject.meshes.forEach((currentMesh) => {
+			if (currentMesh.bones) {
+				console.log('currentMesh.bones', currentMesh.name, currentMesh.bones.length);
+			}
 			this._currentMesh = currentMesh;
-			this._makeOutputMesh();
+			this._makeOutputMesh(currentObject);
 		});
-		this._currentObject.childrenNodes.forEach((child) => {
-			this._currentObject = child;
-			this._exportLoop();
+		currentObject.childrenNodes.forEach((child) => {
+			//console.log('child', child);
+			this._processFrame(child);
 		});
 	}
 	_vector3sToFloat32Array( vectors ) {
@@ -147,5 +199,14 @@ export default class XFileLoader {
 			floatArray.push(vector.z);
 		});
 		return new Float32Array(floatArray);
+	}
+	_boneFromCurrentObject(currentObject) {
+		const frameTransformationMatrix = new THREE.Matrix4().fromArray(currentObject.transformation);
+		const b = new THREE.Bone();
+		b.name = currentObject.name;
+		b.applyMatrix4( frameTransformationMatrix );
+		b.matrixWorld = b.matrix;
+		b.FrameTransformMatrix = frameTransformationMatrix;
+		currentObject.putBone = b;
 	}
 }
