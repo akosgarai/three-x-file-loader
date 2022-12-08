@@ -137,6 +137,7 @@ export default class XFileLoader {
 				}
 				materials.push(mpMat);
 			});
+			let mesh = null;
 			if (this._currentMesh.bones.length > 0) {
 				// define the bones based on the xLoader solution.
 				// make bones from the current root node.
@@ -175,7 +176,7 @@ export default class XFileLoader {
 				materials.forEach((material) => {
 					material.skinning = true;
 				});
-				const skinnedMesh = new THREE.SkinnedMesh( geometry, materials.length === 1 ? materials[ 0 ] : materials );
+				mesh = new THREE.SkinnedMesh( geometry, materials.length === 1 ? materials[ 0 ] : materials );
 				const offsetList = [];
 				bones.forEach((bone) => {
 					if (bone.OffsetMatrix) {
@@ -185,12 +186,27 @@ export default class XFileLoader {
 					}
 				});
 				const skeleton = new THREE.Skeleton(bones, offsetList);
-				skinnedMesh.bind(skeleton);
-				this.meshes.push(skinnedMesh);
+				mesh.add(skeleton.bones[0]);
+				mesh.bind(skeleton);
 			} else {
-				const mesh = new THREE.Mesh( geometry, materials.length === 1 ? materials[ 0 ] : materials );
-				this.meshes.push(mesh);
+				mesh = new THREE.Mesh( geometry, materials.length === 1 ? materials[ 0 ] : materials );
 			}
+			mesh.name = this._currentMesh.name;
+			const worldBaseMx = new THREE.Matrix4();
+			let currentMxFrame = currentObject.putBone;
+			if ( currentMxFrame && currentMxFrame.parent ) {
+				while ( true ) {
+					currentMxFrame = currentMxFrame.parent;
+					if ( currentMxFrame ) {
+						worldBaseMx.multiply( currentMxFrame.FrameTransformMatrix );
+					}
+					else {
+						break;
+					}
+				}
+				mesh.applyMatrix4( worldBaseMx );
+			}
+			this.meshes.push(mesh);
 		}
 	}
 	// It creates the bone hierarchy from the current object
@@ -214,7 +230,7 @@ export default class XFileLoader {
 			for ( let i = 0; i < outputBones.length; i++ ) {
 				if ( currentFrame.parentNode.name === outputBones[ i ].name ) {
 					outputBones[ i ].add( b );
-					b.parent = i;
+					b.parent = outputBones[ i ];
 					break;
 				}
 			}
@@ -282,5 +298,9 @@ export default class XFileLoader {
 		b.matrixWorld = b.matrix;
 		b.FrameTransformMatrix = frameTransformationMatrix;
 		currentObject.putBone = b;
+
+		if (currentObject.parentNode) {
+			currentObject.parentNode.putBone.add(currentObject.putBone);
+		}
 	}
 }
