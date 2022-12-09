@@ -176,9 +176,6 @@ export default class XFileLoader {
 				geometry.setAttribute('skinWeight', new THREE.BufferAttribute(skinWeights, 4));
 				const skinIndices = this._array4sToFloat32Array(tempBoneIndexData, indices);
 				geometry.setAttribute('skinIndex', new THREE.BufferAttribute(skinIndices, 4));
-				materials.forEach((material) => {
-					material.skinning = true;
-				});
 				mesh = new THREE.SkinnedMesh( geometry, materials.length === 1 ? materials[ 0 ] : materials );
 				const offsetList = [];
 				bones.forEach((bone) => {
