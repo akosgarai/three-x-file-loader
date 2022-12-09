@@ -123,6 +123,9 @@ export default class XFileLoader {
 				}
 				if (material.bumpMap) {
 					mpMat.bumpMap = this.texloader.load(material.bumpMap);
+					// The original xLoader sets the bumpScale to 0.05 by default.
+					// In my case it defaults to 1 (see Material type constructor or materialNode parser),
+					// as it is the default value for this property (according to the threejs docs).
 					mpMat.bumpScale = material.bumpScale;
 				}
 				if (material.normalMap) {
