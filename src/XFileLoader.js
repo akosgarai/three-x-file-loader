@@ -221,6 +221,9 @@ export default class XFileLoader {
 	}
 	// It creates the bone hierarchy from the current object
 	_makeBones(currentFrame, outputBones) {
+		if (currentFrame == null) {
+			return;
+		}
 		const frameTransformationMatrix = new THREE.Matrix4().fromArray(currentFrame.transformation);
 		const b = new THREE.Bone();
 		b.name = currentFrame.name;
@@ -306,6 +309,9 @@ export default class XFileLoader {
 		return new Float32Array(floatArray);
 	}
 	_boneFromCurrentObject(currentObject) {
+		if (currentObject == null) {
+			return;
+		}
 		const frameTransformationMatrix = new THREE.Matrix4().fromArray(currentObject.transformation);
 		const b = new THREE.Bone();
 		b.name = currentObject.name;
