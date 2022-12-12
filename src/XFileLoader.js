@@ -89,6 +89,11 @@ export default class XFileLoader {
 		console.log('current output mesh', this._currentMesh, currentObject);
 		if (this._currentMesh && Object.keys(this._currentMesh).length > 0) {
 			const geometry = new THREE.BufferGeometry();
+			geometry.verticesNeedUpdate = true;
+			geometry.normalsNeedUpdate = true;
+			geometry.colorsNeedUpdate = true;
+			geometry.uvsNeedUpdate = true;
+			geometry.groupsNeedUpdate = true;
 			// set faces aka indices
 			const indices = [];
 			this._currentMesh.vertexFaces.forEach((face) => {
@@ -144,7 +149,6 @@ export default class XFileLoader {
 			if (this._currentMesh.bones.length > 0) {
 				// define the bones based on the xLoader solution.
 				// make bones from the current root node.
-				const frameTransformationMatrix = new THREE.Matrix4().fromArray(currentObject.transformation);
 				const bones = [];
 				let tempBoneCountData = [];
 				let tempBoneWeightData = [];
@@ -158,9 +162,15 @@ export default class XFileLoader {
 				this._currentMesh.bones.forEach((bone) => {
 					let boneIndex = 0;
 					for ( let bb = 0; bb < bones.length; bb++ ) {
+		if (bones[ bb ].name == "BarniaBaseR") {
+			console.log('_makeOutputMesh, BarnieBaseR', bones[ bb ].clone());
+		}
 						if ( bones[ bb ].name === bone.name ) {
 							boneIndex = bb;
 							bones[ bb ].OffsetMatrix = new THREE.Matrix4().fromArray(bone.offsetMatrix);
+		if (bones[ bb ].name == "BarniaBaseR") {
+			console.log('_makeOutputMesh offsetMatrix, BarnieBaseR', bones[ bb ].clone());
+		}
 							break;
 						}
 					}
@@ -215,8 +225,12 @@ export default class XFileLoader {
 		const b = new THREE.Bone();
 		b.name = currentFrame.name;
 		b.applyMatrix4( frameTransformationMatrix );
-		b.matrixWorld = b.matrix;
+		//b.matrixWorld.copy(b.matrix);
 		b.FrameTransformMatrix = frameTransformationMatrix;
+		if (currentFrame.name == "BarniaBaseR") {
+			console.log('makeBones, BarnieBaseR', b.clone());
+		}
+		/*
 		b.pos = new THREE.Vector3()
 			.setFromMatrixPosition( b.FrameTransformMatrix )
 			.toArray();
@@ -226,6 +240,7 @@ export default class XFileLoader {
 		b.scl = new THREE.Vector3()
 			.setFromMatrixScale( b.FrameTransformMatrix )
 			.toArray();
+		*/
 		if ( currentFrame.parentNode ) {
 			for ( let i = 0; i < outputBones.length; i++ ) {
 				if ( currentFrame.parentNode.name === outputBones[ i ].name ) {
@@ -295,7 +310,7 @@ export default class XFileLoader {
 		const b = new THREE.Bone();
 		b.name = currentObject.name;
 		b.applyMatrix4( frameTransformationMatrix );
-		b.matrixWorld = b.matrix;
+		//b.matrixWorld.copy(b.matrix);
 		b.FrameTransformMatrix = frameTransformationMatrix;
 		currentObject.putBone = b;
 
