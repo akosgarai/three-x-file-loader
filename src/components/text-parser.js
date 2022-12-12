@@ -37,7 +37,9 @@ class TextParser {
 			this.readUntil += skipped.valueLength;
 			this.lineNumber += skipped.lines;
 		}
-		this._filterHierarchy(this.exportScene.rootNode);
+		if (this.exportScene.rootNode != null) {
+			this._filterHierarchy(this.exportScene.rootNode);
+		}
 		return this.exportScene;
 	}
 
@@ -100,7 +102,7 @@ class TextParser {
 	// parse a mesh object definition based on the assimp xfile parser.
 	// The assimp implementation is located in this link: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L389-L445
 	// The mesh has to be base on THREE.Mesh.
-	_parseMeshObject(parentNode) {
+	_parseMeshObject() {
 		const mesh = Parsers.meshNode(this.fileContent.substring(this.readUntil));
 		this.readUntil += mesh.valueLength;
 		this.lineNumber += mesh.lines;
