@@ -62,12 +62,16 @@ export default class XFileLoader {
 			this._exportScene = parser.parse();
 			this._initCurrentAnimationAndMesh();
 			this._currentObject = this._exportScene.rootNode;
-			console.log('exportScene', this._exportScene);
-			this._processFrame(this._currentObject);
-			console.log('Frame has been processed.', this.meshes);
+			if (this._currentObject) {
+				this._processFrame(this._currentObject);
+			} else {
+				this._exportScene.animations.forEach((currentAnim) => {
+					this._currentAnimation = currentAnim;
+					this._makeOutputAnimation();
+				});
+			}
 
 			setTimeout( () => {
-				console.log('Executing onload form fileloader.');
 				this.onLoad( {
 					models: this.meshes,
 					animations: this.animations
@@ -86,7 +90,6 @@ export default class XFileLoader {
 		this._currentAnimation = {};
 	}
 	_makeOutputMesh(currentObject) {
-		console.log('current output mesh', this._currentMesh, currentObject);
 		if (this._currentMesh && Object.keys(this._currentMesh).length > 0) {
 			const geometry = new THREE.BufferGeometry();
 			geometry.verticesNeedUpdate = true;
@@ -97,7 +100,6 @@ export default class XFileLoader {
 			// set faces aka indices
 			const indices = [];
 			this._currentMesh.vertexFaces.forEach((face) => {
-				//console.log('face', face.indices, vertices[face.indices[0]], vertices[face.indices[1]], vertices[face.indices[2]]);
 				indices.push(face.indices[0], face.indices[1], face.indices[2]);
 			});
 			// set vertices
@@ -162,15 +164,9 @@ export default class XFileLoader {
 				this._currentMesh.bones.forEach((bone) => {
 					let boneIndex = 0;
 					for ( let bb = 0; bb < bones.length; bb++ ) {
-		if (bones[ bb ].name == "BarniaBaseR") {
-			console.log('_makeOutputMesh, BarnieBaseR', bones[ bb ].clone());
-		}
 						if ( bones[ bb ].name === bone.name ) {
 							boneIndex = bb;
 							bones[ bb ].OffsetMatrix = new THREE.Matrix4().fromArray(bone.offsetMatrix);
-		if (bones[ bb ].name == "BarniaBaseR") {
-			console.log('_makeOutputMesh offsetMatrix, BarnieBaseR', bones[ bb ].clone());
-		}
 							break;
 						}
 					}
@@ -228,22 +224,7 @@ export default class XFileLoader {
 		const b = new THREE.Bone();
 		b.name = currentFrame.name;
 		b.applyMatrix4( frameTransformationMatrix );
-		//b.matrixWorld.copy(b.matrix);
 		b.FrameTransformMatrix = frameTransformationMatrix;
-		if (currentFrame.name == "BarniaBaseR") {
-			console.log('makeBones, BarnieBaseR', b.clone());
-		}
-		/*
-		b.pos = new THREE.Vector3()
-			.setFromMatrixPosition( b.FrameTransformMatrix )
-			.toArray();
-		b.rotq = new THREE.Quaternion()
-			.setFromRotationMatrix( b.FrameTransformMatrix )
-			.toArray();
-		b.scl = new THREE.Vector3()
-			.setFromMatrixScale( b.FrameTransformMatrix )
-			.toArray();
-		*/
 		if ( currentFrame.parentNode ) {
 			for ( let i = 0; i < outputBones.length; i++ ) {
 				if ( currentFrame.parentNode.name === outputBones[ i ].name ) {
@@ -260,6 +241,72 @@ export default class XFileLoader {
 	}
 	_makeOutputAnimation() {
 		if (this._currentAnimation && Object.keys(this._currentAnimation).length > 0) {
+			this._currentAnimation.hierarchy = [];
+			this._currentAnimation.boneAnimations.forEach((boneAnimation) => {
+				const boneAnimKeys = [];
+				if (boneAnimation.positionKeys.length > 0) {
+					boneAnimation.positionKeys.forEach((vectorKey, index) => {
+						const vector = new THREE.Vector3(vectorKey.data[0], vectorKey.data[1], vectorKey.data[2]);
+						if (typeof boneAnimKeys[index] != "undefined") {
+							boneAnimKeys[index].pos = vector;
+						} else {
+							boneAnimKeys.push({
+								time: vectorKey.time,
+								pos: vector,
+							});
+						}
+					});
+				}
+				if (boneAnimation.scaleKeys.length > 0) {
+					boneAnimation.scaleKeys.forEach((vectorKey, index) => {
+						const vector = new THREE.Vector3(vectorKey.data[0], vectorKey.data[1], vectorKey.data[2]);
+						if (typeof boneAnimKeys[index] != "undefined") {
+							boneAnimKeys[index].scl = vector;
+						} else {
+							boneAnimKeys.push({
+								time: vectorKey.time,
+								scl: vector,
+							});
+						}
+					});
+				}
+				if (boneAnimation.rotationKeys.length > 0) {
+					boneAnimation.rotationKeys.forEach((quaternionKey, index) => {
+						const quaternion = new THREE.Quaternion(quaternionKey.data[1], quaternionKey.data[2], quaternionKey.data[3], quaternionKey.data[0]*-1);
+						if (typeof boneAnimKeys[index] != "undefined") {
+							boneAnimKeys[index].rot = quaternion;
+						} else {
+							boneAnimKeys.push({
+								time: quaternionKey.time,
+								rot: quaternion,
+							});
+						}
+					});
+				}
+				if (boneAnimation.matrixKeys.length > 0) {
+					boneAnimation.matrixKeys.forEach((matrixKey, index) => {
+						const matrix = new THREE.Matrix4().fromArray(matrixKey.data);
+						if (typeof boneAnimKeys[index] != "undefined") {
+							boneAnimKeys[index].rot = new THREE.Quaternion().setFromRotationMatrix(matrix);
+							boneAnimKeys[index].pos = new THREE.Vector3().setFromMatrixPosition(matrix);
+							boneAnimKeys[index].scl = new THREE.Vector3().setFromMatrixScale(matrix);
+						} else {
+							boneAnimKeys.push({
+								time: matrixKey.time,
+								matrix: matrix,
+								rot: new THREE.Quaternion().setFromRotationMatrix(matrix),
+								pos: new THREE.Vector3().setFromMatrixPosition(matrix),
+								scl: new THREE.Vector3().setFromMatrixScale(matrix),
+							});
+						}
+					});
+				}
+				this._currentAnimation.hierarchy.push({
+					name: boneAnimation.name,
+					keys: boneAnimKeys,
+					parent: '',
+				});
+			});
 			this.animations.push(this._currentAnimation);
 		}
 	}
@@ -267,14 +314,16 @@ export default class XFileLoader {
 		// Make bone from the current frame object.
 		this._boneFromCurrentObject(currentObject);
 		currentObject.meshes.forEach((currentMesh) => {
-			if (currentMesh.bones) {
-				console.log('currentMesh.bones', currentMesh.name, currentMesh.bones.length);
-			}
 			this._currentMesh = currentMesh;
 			this._makeOutputMesh(currentObject);
 		});
+		if (currentObject.animations) {
+			currentObject.animations.forEach((currentAnim) => {
+				this._currentAnimation = currentAnim;
+				this._makeOutputAnimation();
+			});
+		}
 		currentObject.childrenNodes.forEach((child) => {
-			//console.log('child', child);
 			this._processFrame(child);
 		});
 	}
