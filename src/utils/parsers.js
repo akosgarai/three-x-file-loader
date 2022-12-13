@@ -741,7 +741,25 @@ function animationNode(fullText, animation) {
 		} else if (nextToken.nodeData == 'AnimationKey') {
 			const animationKey = animationKeyNode(fullText.substring(node.valueLength), boneAnimation);
 			node.updateExport(animationKey);
-			node.nodeData.boneAnimations.push(animationKey.nodeData);
+			// Update the existing one or add a new one. In case of bone animation with the name has been
+			// found, update the existing one with the new keys. Otherwise, add a new one.
+			const existingBoneAnimation = animation.boneAnimations.find(boneAnim => boneAnim.name == boneAnimation.name);
+			if (existingBoneAnimation) {
+				if (animationKey.nodeData.rotationKeys) {
+					existingBoneAnimation.rotationKeys = animationKey.nodeData.rotationKeys;
+				}
+				if (animationKey.nodeData.scaleKeys) {
+					existingBoneAnimation.scaleKeys = animationKey.nodeData.scaleKeys;
+				}
+				if (animationKey.nodeData.positionKeys) {
+					existingBoneAnimation.positionKeys = animationKey.nodeData.positionKeys;
+				}
+				if (animationKey.nodeData.matrixKeys) {
+					existingBoneAnimation.matrixKeys = animationKey.nodeData.matrixKeys;
+				}
+			} else {
+				node.nodeData.boneAnimations.push(animationKey.nodeData);
+			}
 			node.updateExport(StringUtils.readUntilNextNonWhitespace(fullText.substring(node.valueLength)));
 		} else if (nextToken.nodeData == 'AnimationOptions') {
 			// It is ignored by assimp, so we will ignore it too.
