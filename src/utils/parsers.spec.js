@@ -1,5 +1,5 @@
-const Parsers = require('./parsers');
-const Types = require('./types');
+import * as Parsers from './parsers.js';
+import * as Types from './types.js';
 
 describe('Parsers', () => {
 	describe('headOfDataObject', () => {

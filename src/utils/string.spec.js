@@ -1,5 +1,5 @@
-const StringUtils = require('./string');
-const Types = require('./types');
+import * as StringUtils from './string.js';
+import * as Types from './types.js';
 
 describe('String Utils', () => {
 	describe('isSpace', () => {

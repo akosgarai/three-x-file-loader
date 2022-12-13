@@ -1,4 +1,4 @@
-const Types = require('./types');
+import * as Types from './types';
 
 const someClass = class Whatever {};
 

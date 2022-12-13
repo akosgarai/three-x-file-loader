@@ -1,8 +1,8 @@
-const Parsers = require('../utils/parsers');
-const StringUtils = require('../utils/string');
-const Types = require('../utils/types');
+import * as Parsers from '../utils/parsers.js';
+import * as StringUtils from '../utils/string.js';
+import * as Types from '../utils/types.js';
 
-module.exports = class TextParser {
+class TextParser {
 
 	// It contains the text of the .X file
 	fileContent;
@@ -32,12 +32,14 @@ module.exports = class TextParser {
 			if (objectName.nodeData == '') {
 				break;
 			}
-			this._parseObjectBasedOnName(objectName);
+			this._parseObjectBasedOnName(objectName.nodeData);
 			const skipped = StringUtils.readUntilNextNonWhitespace(this.fileContent.substring(this.readUntil));
 			this.readUntil += skipped.valueLength;
 			this.lineNumber += skipped.lines;
 		}
-		this._filterHierarchy(this.exportScene.rootNode);
+		if (this.exportScene.rootNode != null) {
+			this._filterHierarchy(this.exportScene.rootNode);
+		}
 		return this.exportScene;
 	}
 
@@ -76,8 +78,8 @@ module.exports = class TextParser {
 	}
 	_parseFrameObject() {
 		const frame = Parsers.frameNode(this.fileContent.substring(this.readUntil));
-		this.readUntil += template.valueLength;
-		this.lineNumber += template.lines;
+		this.readUntil += frame.valueLength;
+		this.lineNumber += frame.lines;
 		if (this.exportScene.rootNode == null) {
 			this.exportScene.rootNode = frame.nodeData;
 		} else {
@@ -100,7 +102,7 @@ module.exports = class TextParser {
 	// parse a mesh object definition based on the assimp xfile parser.
 	// The assimp implementation is located in this link: https://github.com/assimp/assimp/blob/master/code/AssetLib/X/XFileParser.cpp#L389-L445
 	// The mesh has to be base on THREE.Mesh.
-	_parseMeshObject(parentNode) {
+	_parseMeshObject() {
 		const mesh = Parsers.meshNode(this.fileContent.substring(this.readUntil));
 		this.readUntil += mesh.valueLength;
 		this.lineNumber += mesh.lines;
@@ -165,3 +167,6 @@ module.exports = class TextParser {
 		}
 	}
 }
+export {
+	TextParser,
+};
