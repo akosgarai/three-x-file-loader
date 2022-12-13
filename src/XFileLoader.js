@@ -118,7 +118,16 @@ export default class XFileLoader {
 			geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
 			// set materials
 			const materials = [];
-			this._currentMesh.materials.forEach((material) => {
+			this._currentMesh.materials.forEach((currentMaterial) => {
+				// if the material is referenced by name, get the material from the scene
+				let material = currentMaterial;
+				if (material.isReference) {
+					this._exportScene.materials.forEach((currentSceneMaterial) => {
+						if (currentSceneMaterial.name === material.name) {
+							material = currentSceneMaterial;
+						}
+					});
+				}
 				const mpMat = new THREE.MeshPhongMaterial();
 				mpMat.name = material.name;
 				mpMat.color = new THREE.Color(material.color.r, material.color.g, material.color.b);
