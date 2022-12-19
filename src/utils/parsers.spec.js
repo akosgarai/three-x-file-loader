@@ -1405,6 +1405,9 @@ describe('Parsers', () => {
 						return anim;
 					}(),
 				},
+				currentAnimation: function() {
+					return new Types.Animation();
+				}(),
 			},
 			{
 				fullText: 'Animation2 {\n{ Animation2_Name }\nAnimationOptions{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}',
@@ -1423,6 +1426,9 @@ describe('Parsers', () => {
 						return anim;
 					}(),
 				},
+				currentAnimation: function() {
+					return new Types.Animation();
+				}(),
 			},
 			{
 				fullText: 'Animation3 {\n{ Animation3_Name }\nAnimationOptionsCustom{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}',
@@ -1441,6 +1447,38 @@ describe('Parsers', () => {
 						return anim;
 					}(),
 				},
+				currentAnimation: function() {
+					return new Types.Animation();
+				}(),
+			},
+			{
+				fullText: 'Animation4 {\n{ Animation4_Name }\nAnimationOptions{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}',
+				expected: {
+					valueLength: 'Animation4 {\n{ Animation4_Name }\nAnimationOptions{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\nAnimationKey{\n2;1;\n0;3;1.000000,0.000000,0.000000;,\n}\n}'.length,
+					lines: 10,
+					animation: function() {
+						const ta = new Types.TimedArray(3);
+						ta.time = 0;
+						ta.data = [1.000000,0.000000,0.000000];
+						const ba = new Types.AnimBone();
+						ba.positionKeys = [ta];
+						ba.name = 'Animation4_Name';
+						const anim = new Types.Animation();
+						anim.boneAnimations = [ba];
+						return anim;
+					}(),
+				},
+				currentAnimation: function() {
+						const ta = new Types.TimedArray(3);
+						ta.time = 0;
+						ta.data = [1.000000,0.000000,0.000000];
+						const ba = new Types.AnimBone();
+						ba.positionKeys = [ta];
+						ba.name = 'Animation4_Name';
+						const anim = new Types.Animation();
+						anim.boneAnimations = [ba];
+						return anim;
+				}(),
 			},
 		];
 		const wrongData = [
@@ -1454,8 +1492,8 @@ describe('Parsers', () => {
 			},
 		];
 		test('General test', () => {
-			testData.forEach(({fullText, expected}) => {
-				const result = Parsers.animationNode(fullText, new Types.Animation());
+			testData.forEach(({fullText, expected, currentAnimation}) => {
+				const result = Parsers.animationNode(fullText, currentAnimation);
 				expect(result.valueLength).toEqual(expected.valueLength);
 				expect(result.lines).toEqual(expected.lines);
 				expect(result.nodeData).toEqual(expected.animation);

@@ -5,7 +5,7 @@ export default class XFileLoader {
 
 	constructor ( manager, texloader ) {
 		this.manager = ( manager !== undefined ) ? manager : new THREE.DefaultLoadingManager();
-		this.texloader = ( texloader !== undefined ) ? texloader : new THREE.TextureLoader();
+		this.texloader = ( texloader !== undefined ) ? texloader : new THREE.TextureLoader(this.manager);
 
 		this._fileLoaderUrl = '';
 		this._options = {};
