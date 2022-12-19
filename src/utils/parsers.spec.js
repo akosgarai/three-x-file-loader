@@ -1469,7 +1469,15 @@ describe('Parsers', () => {
 					}(),
 				},
 				currentAnimation: function() {
-					return new Types.Animation();
+						const ta = new Types.TimedArray(3);
+						ta.time = 0;
+						ta.data = [1.000000,0.000000,0.000000];
+						const ba = new Types.AnimBone();
+						ba.positionKeys = [ta];
+						ba.name = 'Animation4_Name';
+						const anim = new Types.Animation();
+						anim.boneAnimations = [ba];
+						return anim;
 				}(),
 			},
 		];

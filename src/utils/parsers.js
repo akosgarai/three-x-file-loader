@@ -745,18 +745,10 @@ function animationNode(fullText, animation) {
 			// found, update the existing one with the new keys. Otherwise, add a new one.
 			const existingBoneAnimation = animation.boneAnimations.find(boneAnim => boneAnim.name == boneAnimation.name);
 			if (existingBoneAnimation) {
-				if (animationKey.nodeData.rotationKeys) {
-					existingBoneAnimation.rotationKeys = animationKey.nodeData.rotationKeys;
-				}
-				if (animationKey.nodeData.scaleKeys) {
-					existingBoneAnimation.scaleKeys = animationKey.nodeData.scaleKeys;
-				}
-				if (animationKey.nodeData.positionKeys) {
-					existingBoneAnimation.positionKeys = animationKey.nodeData.positionKeys;
-				}
-				if (animationKey.nodeData.matrixKeys) {
-					existingBoneAnimation.matrixKeys = animationKey.nodeData.matrixKeys;
-				}
+				existingBoneAnimation.rotationKeys = animationKey.nodeData.rotationKeys;
+				existingBoneAnimation.scaleKeys = animationKey.nodeData.scaleKeys;
+				existingBoneAnimation.positionKeys = animationKey.nodeData.positionKeys;
+				existingBoneAnimation.matrixKeys = animationKey.nodeData.matrixKeys;
 			} else {
 				node.nodeData.boneAnimations.push(animationKey.nodeData);
 			}
