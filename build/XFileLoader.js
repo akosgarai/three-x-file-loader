@@ -1613,15 +1613,22 @@
     }, {
       key: "_initCurrentAnimationAndMesh",
       value: function _initCurrentAnimationAndMesh() {
-        this._makeOutputMesh();
+        var _this3 = this;
+        this._exportScene.meshes.forEach(function (currentMesh) {
+          _this3._currentMesh = currentMesh;
+          _this3._makeOutputMesh();
+        });
         this._currentMesh = {};
-        this._makeOutputAnimation();
+        this._exportScene.animations.forEach(function (currentAnim) {
+          _this3._currentAnimation = currentAnim;
+          _this3._makeOutputAnimation();
+        });
         this._currentAnimation = {};
       }
     }, {
       key: "_makeOutputMesh",
       value: function _makeOutputMesh(currentObject) {
-        var _this3 = this;
+        var _this4 = this;
         if (this._currentMesh && Object.keys(this._currentMesh).length > 0) {
           var geometry = new THREE.BufferGeometry();
           geometry.verticesNeedUpdate = true;
@@ -1654,7 +1661,7 @@
             // if the material is referenced by name, get the material from the scene
             var material = currentMaterial;
             if (material.isReference) {
-              _this3._exportScene.materials.forEach(function (currentSceneMaterial) {
+              _this4._exportScene.materials.forEach(function (currentSceneMaterial) {
                 if (currentSceneMaterial.name === material.name) {
                   material = currentSceneMaterial;
                 }
@@ -1667,24 +1674,24 @@
             mpMat.specular = new THREE.Color(material.specular.r, material.specular.g, material.specular.b);
             mpMat.emissive = new THREE.Color(material.emissive.r, material.emissive.g, material.emissive.b);
             if (material.map) {
-              mpMat.map = _this3.texloader.load(material.map);
+              mpMat.map = _this4.texloader.load(material.map);
             }
             if (material.bumpMap) {
-              mpMat.bumpMap = _this3.texloader.load(material.bumpMap);
+              mpMat.bumpMap = _this4.texloader.load(material.bumpMap);
               // The original xLoader sets the bumpScale to 0.05 by default.
               // In my case it defaults to 1 (see Material type constructor or materialNode parser),
               // as it is the default value for this property (according to the threejs docs).
               mpMat.bumpScale = material.bumpScale;
             }
             if (material.normalMap) {
-              mpMat.normalMap = _this3.texloader.load(material.normalMap);
+              mpMat.normalMap = _this4.texloader.load(material.normalMap);
               mpMat.normalScale = new THREE.Vector2(material.normalScale.x, material.normalScale.y);
             }
             if (material.emissiveMap) {
-              mpMat.emissiveMap = _this3.texloader.load(material.emissiveMap);
+              mpMat.emissiveMap = _this4.texloader.load(material.emissiveMap);
             }
             if (material.lightMap) {
-              mpMat.lightMap = _this3.texloader.load(material.lightMap);
+              mpMat.lightMap = _this4.texloader.load(material.lightMap);
             }
             materials.push(mpMat);
           });
@@ -1740,17 +1747,19 @@
           }
           mesh.name = this._currentMesh.name;
           var worldBaseMx = new THREE.Matrix4();
-          var currentMxFrame = currentObject.putBone;
-          if (currentMxFrame && currentMxFrame.parent) {
-            while (true) {
-              currentMxFrame = currentMxFrame.parent;
-              if (currentMxFrame) {
-                worldBaseMx.multiply(currentMxFrame.FrameTransformMatrix);
-              } else {
-                break;
+          if (currentObject) {
+            var currentMxFrame = currentObject.putBone;
+            if (currentMxFrame && currentMxFrame.parent) {
+              while (true) {
+                currentMxFrame = currentMxFrame.parent;
+                if (currentMxFrame) {
+                  worldBaseMx.multiply(currentMxFrame.FrameTransformMatrix);
+                } else {
+                  break;
+                }
               }
+              mesh.applyMatrix4(worldBaseMx);
             }
-            mesh.applyMatrix4(worldBaseMx);
           }
           this.meshes.push(mesh);
         }
@@ -1759,7 +1768,7 @@
     }, {
       key: "_makeBones",
       value: function _makeBones(currentFrame, outputBones) {
-        var _this4 = this;
+        var _this5 = this;
         if (currentFrame == null) {
           return;
         }
@@ -1779,13 +1788,13 @@
         }
         outputBones.push(b);
         currentFrame.childrenNodes.forEach(function (child) {
-          _this4._makeBones(child, outputBones);
+          _this5._makeBones(child, outputBones);
         });
       }
     }, {
       key: "_makeOutputAnimation",
       value: function _makeOutputAnimation() {
-        var _this5 = this;
+        var _this6 = this;
         if (this._currentAnimation && Object.keys(this._currentAnimation).length > 0) {
           this._currentAnimation.hierarchy = [];
           this._currentAnimation.boneAnimations.forEach(function (boneAnimation) {
@@ -1847,7 +1856,7 @@
                 }
               });
             }
-            _this5._currentAnimation.hierarchy.push({
+            _this6._currentAnimation.hierarchy.push({
               name: boneAnimation.name,
               keys: boneAnimKeys,
               parent: ''
@@ -1859,21 +1868,21 @@
     }, {
       key: "_processFrame",
       value: function _processFrame(currentObject) {
-        var _this6 = this;
+        var _this7 = this;
         // Make bone from the current frame object.
         this._boneFromCurrentObject(currentObject);
         currentObject.meshes.forEach(function (currentMesh) {
-          _this6._currentMesh = currentMesh;
-          _this6._makeOutputMesh(currentObject);
+          _this7._currentMesh = currentMesh;
+          _this7._makeOutputMesh(currentObject);
         });
         if (currentObject.animations) {
           currentObject.animations.forEach(function (currentAnim) {
-            _this6._currentAnimation = currentAnim;
-            _this6._makeOutputAnimation();
+            _this7._currentAnimation = currentAnim;
+            _this7._makeOutputAnimation();
           });
         }
         currentObject.childrenNodes.forEach(function (child) {
-          _this6._processFrame(child);
+          _this7._processFrame(child);
         });
       }
     }, {
