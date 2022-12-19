@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<title>three.js webgl - X-File loader</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+		<style>
+		body {
+			font-family: Monospace;
+			background-color: #000;
+			color: #fff;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		#info {
+			color: #fff;
+			position: absolute;
+			top: 10px;
+			width: 100%;
+			text-align: center;
+			z-index: 100;
+			display: block;
+		}
+
+		#info a,
+		.button {
+			color: #f00;
+			font-weight: bold;
+			text-decoration: underline;
+			cursor: pointer;
+		}
+
+		#info2 {
+			color: #fff;
+			background-color: #000;
+			position: absolute;
+			top: 3em;
+			right: 0px;
+			width: 10em;
+			z-index: 200;
+			display: block;
+		}
+
+		td {
+			padding: 0.5em;
+		}
+
+		</style>
+	</head>
+
+	<body>
+		<div id="info">
+			<a href="http://threejs.org" target="_blank">three.js</a> - X-File Loader - multiple meshes
+		</div>
+
+		<div id="info2">
+			<table>
+				<tr>
+					<td>mech 1</td>
+					<td><select id="mech1_anime" onchange="mech_changeAnime(0, this.value)">
+							<option value="stand">stand</option>
+							<option value="wark">wark</option>
+							<option value="attack">attack</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>mech 2</td>
+					<td><select id="mech2_anime" onchange="mech_changeAnime(1, this.value)">
+							<option value="stand">stand</option>
+							<option value="wark">wark</option>
+							<option value="attack">attack</option>
+						</select></td>
+				</tr>
+			</table>
+		</div>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.147.0/three.min.js"
+			integrity="sha512-GWXLkqxMENYgBdQvA/lTeOV+R2auhasgKQxjMTWBFt3Z6GJVZ9owiyAMOzz0Wt6J1ri8bf/g2kHJV0uvWpJTuw=="
+			crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/utils/SkeletonUtils.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
+		<script src='../../build/XFileLoader.js'></script>
+
+		<script src='./multiple.js'></script>
+
+	</body>
+
+</html>
