@@ -84,9 +84,15 @@ export default class XFileLoader {
 	// _initCurrentAnimationAndMesh creates the output mesh or animation from the current objects
 	// and adds them to the output arrays. Then it resets the current animation and mesh.
 	_initCurrentAnimationAndMesh() {
-		this._makeOutputMesh();
+		this._exportScene.meshes.forEach((currentMesh) => {
+			this._currentMesh = currentMesh;
+			this._makeOutputMesh();
+		});
 		this._currentMesh = {};
-		this._makeOutputAnimation();
+		this._exportScene.animations.forEach((currentAnim) => {
+			this._currentAnimation = currentAnim;
+			this._makeOutputAnimation();
+		});
 		this._currentAnimation = {};
 	}
 	_makeOutputMesh(currentObject) {
@@ -208,18 +214,20 @@ export default class XFileLoader {
 			}
 			mesh.name = this._currentMesh.name;
 			const worldBaseMx = new THREE.Matrix4();
-			let currentMxFrame = currentObject.putBone;
-			if ( currentMxFrame && currentMxFrame.parent ) {
-				while ( true ) {
-					currentMxFrame = currentMxFrame.parent;
-					if ( currentMxFrame ) {
-						worldBaseMx.multiply( currentMxFrame.FrameTransformMatrix );
+			if (currentObject) {
+				let currentMxFrame = currentObject.putBone;
+				if ( currentMxFrame && currentMxFrame.parent ) {
+					while ( true ) {
+						currentMxFrame = currentMxFrame.parent;
+						if ( currentMxFrame ) {
+							worldBaseMx.multiply( currentMxFrame.FrameTransformMatrix );
+						}
+						else {
+							break;
+						}
 					}
-					else {
-						break;
-					}
+					mesh.applyMatrix4( worldBaseMx );
 				}
-				mesh.applyMatrix4( worldBaseMx );
 			}
 			this.meshes.push(mesh);
 		}
