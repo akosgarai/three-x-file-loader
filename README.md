@@ -25,3 +25,9 @@ It uses jest.
 `npm run build`
 
 It uses rollup.
+
+## Sample applications
+
+You can find sample applications under the `samples` directory.
+
+- noanimation - It loads a skinned mesh without any animation. Same example as [this](https://github.com/adrs2002/threeXfileLoader/blob/master/sample/xFileLoad_basic.html) one from the original implementation, but it uses new three (r0.147.0). The model file and the texture are the same.
