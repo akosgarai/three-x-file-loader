@@ -57,7 +57,7 @@ function init() {
 	var loader = new THREE.XFileLoader(manager);
 
 	//download Model file
-	loader.load(['https://raw.githubusercontent.com/adrs2002/threeXfileLoader/master/sample/content/track.x'], function (object) {
+	loader.load('https://raw.githubusercontent.com/adrs2002/threeXfileLoader/master/sample/content/track.x', function (object) {
 		for (var i = 0; i < object.models.length; i++) {
 			object.models[i].scale.set(0.1, 0.1, 0.1);
 			scene.add(object.models[i]);

@@ -1,5 +1,5 @@
 {
-  "name": "three-x-file-loader",
+  "name": "@akosgarai/three-x-file-loader",
   "version": "1.0.0",
   "description": "DirectX 3D file (X file) loader for three.js.",
   "main": "index.js",
