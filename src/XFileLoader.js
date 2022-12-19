@@ -21,21 +21,8 @@ export default class XFileLoader {
 		this._exportScene = {};
 	}
 
-	_setArgOption( _arg) {
-		if ( !_arg ) {
-			throw 'Missing arguments.';
-		}
-		if (_arg[0]) {
-			this._fileLoaderUrl = _arg[0];
-		}
-		if (_arg[1]) {
-			this.options = _arg[1];
-		}
-	}
-
-
-	load( _arg, onLoad, onProgress, onError ) {
-		this._setArgOption( _arg );
+	load( fileLoaderUrl, onLoad, onProgress, onError ) {
+		this._fileLoaderUrl = fileLoaderUrl;
 		const loader = new THREE.FileLoader( this.manager );
 		loader.setResponseType( 'arraybuffer' );
 		loader.load( this._fileLoaderUrl, ( response ) => {

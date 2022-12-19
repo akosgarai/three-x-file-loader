@@ -1544,23 +1544,10 @@
       this._exportScene = {};
     }
     _createClass(XFileLoader, [{
-      key: "_setArgOption",
-      value: function _setArgOption(_arg) {
-        if (!_arg) {
-          throw 'Missing arguments.';
-        }
-        if (_arg[0]) {
-          this._fileLoaderUrl = _arg[0];
-        }
-        if (_arg[1]) {
-          this.options = _arg[1];
-        }
-      }
-    }, {
       key: "load",
-      value: function load(_arg, onLoad, onProgress, onError) {
+      value: function load(fileLoaderUrl, onLoad, onProgress, onError) {
         var _this = this;
-        this._setArgOption(_arg);
+        this._fileLoaderUrl = fileLoaderUrl;
         var loader = new THREE.FileLoader(this.manager);
         loader.setResponseType('arraybuffer');
         loader.load(this._fileLoaderUrl, function (response) {
