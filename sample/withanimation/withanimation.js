@@ -68,7 +68,7 @@ function init() {
 
 	actions[0] = {};
 	//download Model file
-	loader.load(['https://raw.githubusercontent.com/adrs2002/threeXfileLoader/master/sample/content/SSR06_model.x'], function (object) {
+	loader.load('https://raw.githubusercontent.com/adrs2002/threeXfileLoader/master/sample/content/SSR06_model.x', function (object) {
 
 		for (var i = 0; i < object.models.length; i++) {
 			// ! infomation
@@ -126,7 +126,7 @@ function loadAnimation(animeName, modelId, _callback) {
 		}
 	} else {
 		var loader2 = new THREE.XFileLoader(manager);
-		loader2.load(['https://raw.githubusercontent.com/adrs2002/threeXfileLoader/master/sample/content/' + animeName + '.x' ], function (data) {
+		loader2.load('https://raw.githubusercontent.com/adrs2002/threeXfileLoader/master/sample/content/' + animeName + '.x', function (data) {
 			// associate divided model and animation.
 			//START
 			const animation = data.animations[0];

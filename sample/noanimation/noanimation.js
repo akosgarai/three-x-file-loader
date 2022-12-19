@@ -57,7 +57,7 @@ function init() {
 	var loader = new THREE.XFileLoader(manager);
 
 	//download Model file
-	loader.load(['https://raw.githubusercontent.com/adrs2002/threeXfileLoader/master/sample/content/SSR06_model.x'], function (object) {
+	loader.load('https://raw.githubusercontent.com/adrs2002/threeXfileLoader/master/sample/content/SSR06_model.x', function (object) {
 		for (var i = 0; i < object.models.length; i++) {
 			scene.add(object.models[i]);
 		}
