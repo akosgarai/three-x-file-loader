@@ -11,8 +11,8 @@
   "author": "akosgarai",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.20.2",
-    "@babel/preset-env": "^7.20.2",
+    "@babel/core": "^7.23.2",
+    "@babel/preset-env": "^7.23.2",
     "@rollup/plugin-babel": "^6.0.2",
     "dat.gui": "^0.7.9",
     "jest": "^28.1.3",
